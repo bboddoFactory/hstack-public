@@ -1,0 +1,8 @@
+{
+  "name": "hstack",
+  "version": "0.15.0",
+  "description": "에이전트와 일하는 hippo의 스킬 묶음: 히포 모드, 스토리맵 보드, 시제품, 이해, 설계, 구현 준비, 레이어, 리뷰, 돌아보기, 규칙 적용, 브리핑, 화면 디자인, 브라우저 설명, Codex 자동화, 허더, 길잡이",
+  "author": { "name": "bboddoFactory", "url": "https://github.com/bboddoFactory" },
+  "repository": "https://github.com/bboddoFactory/hstack-public",
+  "skills": "./skills/"
+}

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>현황판</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1d1d20;
+    --soft: #6a6a72;
+    --line: #c9c9d1;
+    --mark: #d93a2b;
+    --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 18px/1.5 var(--font);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .sheet { max-width: 1400px; margin: 0 auto; padding: 44px 44px 80px; }
+  .project { margin: 0; font-size: 16px; color: var(--soft); }
+  h1 { margin: 0 0 6px; font-size: 44px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+
+  .purpose { margin: 0 0 36px; color: var(--soft); max-width: 60ch; }
+  .purpose:empty { margin-bottom: 30px; }
+  .purpose.clickable { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px; }
+  dialog h2.md { margin: 18px 0 4px; font-size: 18px; font-weight: 800; }
+  dialog ol { margin: 0; padding-left: 1.3em; }
+
+  /* 맵: 동사마다 한 열. 에픽마다 "목적 띠" 한 행과 "칸" 한 행을 쓴다. 행 높이는 모든 열이 함께 쓴다. */
+  .map { display: grid; grid-template-columns: repeat(var(--verbs), minmax(0, 1fr)); column-gap: 36px; }
+  .col { display: grid; grid-row: 1 / span var(--tracks); grid-template-rows: subgrid; }
+  /* 약속: 동사가 아니라 앱이 항상 지키는 것. 맨 오른쪽에 두고 세로 선으로 동사와 가른다. */
+  .col.promise { position: relative; }
+  .col.promise::before { content: ""; position: absolute; top: 0; bottom: 0; left: -18px; border-left: 1px solid var(--line); }
+  .col.promise .head { color: var(--soft); }
+  .head { margin: 0; padding: 0 0 12px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; border-bottom: 1px solid var(--text); }
+  .band { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 16px; padding: 30px 0 2px; }
+  .band .row-name { flex: none; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .band .goal { margin: 0; color: var(--soft); }
+  .cell { padding: 6px 0 22px; }
+  .item { display: flex; align-items: baseline; gap: 10px; min-height: 48px; padding: 12px 4px 10px; border-bottom: 1px solid var(--line); }
+  .item.empty { border-bottom-color: transparent; }
+  .item .name { position: relative; }
+  .item.done::after { content: "✓"; }
+  .item.now .name::before {
+    content: ""; position: absolute; inset: -7px -14px -6px -14px;
+    border: 2px solid var(--mark); border-radius: 50%; transform: rotate(-2deg);
+  }
+  .item.now::after { content: "지금 하는 곳"; font-size: 15px; font-weight: 600; color: var(--mark); margin-left: 18px; }
+  .row-tag { display: none; }
+  .clickable { cursor: pointer; }
+  .item.clickable .name, .head.clickable, .row-name.clickable { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px; }
+  dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); border: 1px solid var(--text); border-radius: 6px; padding: 24px 26px; color: var(--text); font: 17px/1.6 var(--font); }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.25); }
+  dialog h3 { margin: 0 0 4px; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  dialog .kind { margin: 0 0 14px; font-size: 15px; color: var(--soft); }
+  dialog h4 { margin: 16px 0 2px; font-size: 15px; font-weight: 700; color: var(--soft); }
+  dialog p { margin: 0; }
+  dialog ul { margin: 0; padding-left: 1.1em; }
+  dialog a { color: var(--text); }
+  dialog .close { margin-top: 22px; font: inherit; font-size: 16px; font-weight: 700; background: none; border: 1px solid var(--text); border-radius: 6px; padding: 8px 16px; cursor: pointer; }
+
+  :focus-visible { outline: 3px solid var(--mark); outline-offset: 4px; }
+  .error { color: #a62419; white-space: pre-wrap; }
+  .task-note { color: var(--soft); font-size: 15px; }
+  .task-scroll { overflow-x: auto; }
+  .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .task-table th, .task-table td { padding: 14px 12px; vertical-align: top; border-bottom: 1px solid var(--line); text-align: left; }
+  .task-table thead th { border-bottom-color: var(--text); }
+  .task-table tbody th { width: 6em; position: sticky; left: 0; background: var(--bg); }
+  .task-card { display: block; width: 100%; margin: 0 0 10px; padding: 12px; text-align: left; font: inherit; color: var(--text); background: white; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+  .task-card:last-child { margin-bottom: 0; }
+  dialog pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+  dialog p + p { margin-top: 8px; }
+
+  @media (max-width: 899px) {
+    body { font-size: 17px; }
+    .sheet { padding: 28px 18px 64px; }
+    h1 { font-size: 34px; }
+    .purpose { margin-bottom: 20px; }
+    .map { display: block; }
+    .band { display: block; padding: 0 0 14px; }
+    .band.no-goal { display: none; }
+    .band .row-name { font-size: 17px; margin-right: 8px; }
+    .band .goal { display: inline; }
+    .col { display: block; margin: 0 0 28px; }
+    .col:first-of-type { margin-top: 18px; }
+    .col.promise::before { display: none; }
+    .col.promise { padding-top: 20px; border-top: 1px solid var(--line); }
+    .spacer { display: none; }
+    .head { font-size: 21px; padding-bottom: 8px; }
+    .cell { display: flex; gap: 14px; padding: 8px 0 0; }
+    .cell.blank { display: none; }
+    .row-tag { display: block; flex: none; width: 3.2em; padding-top: 12px; font-size: 15px; font-weight: 700; color: var(--soft); }
+    .cell .items { flex: 1; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <p class="project" id="project"></p>
+  <h1>현황판</h1>
+  <p class="purpose" id="purpose"></p>
+  <div class="map" id="map"></div>
+  <dialog id="info"></dialog>
+</main>
+
+<script type="module">
+// 맵 내용은 data/story-map/<프로젝트 이름>/board.json 에 있다. 주소의 ?p= 로 프로젝트를 고른다.
+const projectId = new URLSearchParams(location.search).get("p");
+// 산출물은 hstack 저장소의 data/story-map/<프로젝트 이름>/ 에 있다. 이 틀은 skills/story-map/board/ 에 있으므로 세 단계 위가 저장소 루트다.
+const DATA = `../../../data/story-map/${encodeURIComponent(projectId ?? "")}`;
+const sheet = document.querySelector(".sheet");
+let board;
+
+// 동사나 칸을 누르면 뜨는 정보 창.
+// 동사: about(무엇을 하는 단계인가), log
+// 칸: what(할 수 있게 되는 것), screen(화면 디자인 필요/불필요/애매), decided(정한 것), comps(시안 경로), undecided(정하지 않은 것), log
+// 에픽: goal(목적), check(끝났다고 보는 조건), state, log
+// log: [{ date, text }] 생긴 맥락부터 바뀔 때마다 한 줄씩
+const info = document.getElementById("info");
+function hasInfo(it) {
+  return ["about", "what", "goal", "check", "log", "screen", "decided", "comps", "undecided"].some((k) => it[k] && it[k].length);
+}
+function openInfo(it, kind) {
+  beginDialog();
+  info.append(el("h3", "", it.name), el("p", "kind", kind));
+  const text = (title, value) => { if (value) info.append(el("h4", "", title), el("p", "", value)); };
+  const list = (title, values, link) => {
+    if (!values || !values.length) return;
+    info.append(el("h4", "", title));
+    const ul = el("ul");
+    values.forEach((v) => {
+      const li = el("li");
+      if (link) {
+        const a = el("a", "", v.split("/").pop());
+        a.href = `${DATA}/${v}`;
+        a.target = "_blank";
+        li.append(a);
+      } else li.textContent = v;
+      ul.append(li);
+    });
+    info.append(ul);
+  };
+  text("무엇을 하나", it.about || it.what);
+  text("목적", it.goal);
+  if (it.state && it.goal) text("상태", it.state);
+  list("끝났다고 보는 조건", it.check);
+  text("화면 디자인", it.screen);
+  list("정한 것", it.decided);
+  list("시안", it.comps, true);
+  list("정하지 않은 것", it.undecided);
+  list("기록", (it.log || []).map((e) => (e.date ? e.date + " " : "") + e.text));
+  showDialog(it.name);
+}
+let documentRequest = 0;
+function beginDialog() {
+  documentRequest += 1;
+  info.replaceChildren();
+}
+function showDialog(label) {
+  info.setAttribute("aria-label", label);
+  const close = el("button", "close", "닫기");
+  close.addEventListener("click", () => info.close());
+  info.append(close);
+  if (!info.open) info.showModal();
+  info.scrollTop = 0;
+  close.focus({ preventScroll: true });
+}
+info.addEventListener("close", () => { documentRequest += 1; });
+info.addEventListener("click", (e) => { if (e.target === info) info.close(); });
+function interactive(node, action) {
+  node.classList.add("clickable");
+  node.tabIndex = 0;
+  node.setAttribute("role", "button");
+  node.addEventListener("click", action);
+  node.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); action(); }
+  });
+}
+
+// 제품 문서: data/story-map/<이름>/product.md. 머리말의 summary를 제목 아래에 보이고, 누르면 본문을 정보 창으로 연다.
+async function loadProduct() {
+  const res = await fetch(`${DATA}/product.md`, { cache: "no-store" });
+  if (!res.ok) return;
+  const text = await res.text();
+  const m = text.match(/^---\n([\s\S]*?)\n---\n?/);
+  const body = m ? text.slice(m[0].length) : text;
+  const summary = m && (m[1].match(/^summary:\s*"?(.*?)"?\s*$/m) || [])[1];
+  const purpose = document.getElementById("purpose");
+  purpose.textContent = summary || "제품 문서";
+  interactive(purpose, () => {
+    beginDialog();
+    info.append(...renderMarkdown(body, new URL(`${DATA}/product.md`, location.href)));
+    showDialog("제품 문서");
+  });
+}
+
+// 제품 문서에 쓰는 만큼만 그리는 작은 마크다운 그리기: 제목, 문단, 목록, 굵게, 코드
+function safeLink(value, base) {
+  try {
+    const url = new URL(value, base);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch { return null; }
+}
+function renderMarkdown(md, base = location.href) {
+  const inline = (t) => {
+    const span = el("span");
+    t.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^\s)]+\))/).forEach((part) => {
+      if (part.startsWith("**") && part.endsWith("**")) span.append(el("b", "", part.slice(2, -2)));
+      else if (part.startsWith("`") && part.endsWith("`")) span.append(el("code", "", part.slice(1, -1)));
+      else {
+        const link = part.match(/^\[([^\]]+)\]\(([^\s)]+)\)$/);
+        const href = link && safeLink(link[2], base);
+        if (href) {
+          const a = el("a", "", link[1]);
+          a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
+          span.append(a);
+        } else span.append(document.createTextNode(part));
+      }
+    });
+    return span;
+  };
+  const out = [];
+  let list = null;
+  let code = null;
+  md.split("\n").forEach((line) => {
+    const t = line.trim();
+    if (t.startsWith("```")) {
+      list = null;
+      if (code) code = null;
+      else { const pre = el("pre"); code = el("code"); pre.append(code); out.push(pre); }
+      return;
+    }
+    if (code) { code.append(document.createTextNode(line + "\n")); return; }
+    const bullet = t.match(/^[-*]\s+(.*)$/);
+    const num = t.match(/^\d+\.\s+(.*)$/);
+    if (bullet || num) {
+      const tag = bullet ? "ul" : "ol";
+      if (!list || list.tagName.toLowerCase() !== tag) { list = el(tag); out.push(list); }
+      const li = el("li"); li.append(inline((bullet || num)[1])); list.append(li);
+      return;
+    }
+    list = null;
+    if (!t) return;
+    const heading = t.match(/^(#{1,6})\s+(.*)$/);
+    if (heading) { const h = el(heading[1].length === 1 ? "h3" : "h2", "md"); h.append(inline(heading[2])); out.push(h); }
+    else { const p = el("p"); p.append(inline(t)); out.push(p); }
+  });
+  return out;
+}
+
+const el = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
+};
+
+const map = document.getElementById("map");
+function renderLegacy() {
+map.style.setProperty("--verbs", board.verbs.length);
+map.style.setProperty("--tracks", 1 + board.rows.length * 2);
+
+// 목적 띠: 에픽마다 전체 폭으로 한 줄. 격자의 2, 4, 6 … 번째 행에 놓인다.
+board.rows.forEach((row, i) => {
+  const band = el("div", "band" + (row.goal ? "" : " no-goal"));
+  band.style.gridRow = String(2 + i * 2);
+  const rowName = el("span", "row-name", row.name);
+  if (hasInfo(row)) {
+    interactive(rowName, () => openInfo(row, "에픽"));
+  }
+  band.append(rowName);
+  if (row.goal) band.append(el("p", "goal", row.goal));
+  map.append(band);
+});
+
+board.verbs.forEach((verb, v) => {
+  const promise = verb.kind === "promise";
+  const col = el("section", "col" + (promise ? " promise" : ""));
+  col.style.gridColumn = String(v + 1);
+  const head = el("h2", "head", verb.name);
+  if (hasInfo(verb)) {
+    interactive(head, () => openInfo(verb, promise ? "약속" : "동사"));
+  }
+  col.append(head);
+  board.rows.forEach((row, i) => {
+    col.append(el("div", "spacer"));
+    const items = verb.cells[i] ?? [];
+    const cell = el("div", "cell" + (items.length ? "" : " blank"));
+    cell.append(el("span", "row-tag", row.name));
+    const list = el("div", "items");
+    if (!items.length) list.append(el("div", "item empty"));
+    items.forEach((it) => {
+      const item = el("div", "item" + (it.state ? " " + it.state : ""));
+      item.append(el("span", "name", it.name));
+      list.append(item);
+      if (hasInfo(it)) {
+        interactive(item, () => openInfo(it, `칸 · ${verb.name} · ${row.name}`));
+      }
+    });
+    cell.append(list);
+    col.append(cell);
+  });
+  map.append(col);
+});
+}
+
+const states = [["todo", "후보"], ["doing", "진행 중"], ["done", "완료"], ["cancelled", "취소"]];
+function taskPath(value) {
+  if (typeof value !== "string" || !value) throw new Error("작업 경로가 없습니다.");
+  let decoded;
+  try { decoded = decodeURIComponent(value); } catch { throw new Error(`잘못된 작업 경로: ${value}`); }
+  if (/[\\:%?#\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("/") ||
+      decoded.split("/").some((part) => !part || part === "." || part === "..") || !/\.md$/i.test(decoded)) {
+    throw new Error(`프로젝트 안의 상대 Markdown 경로가 아닙니다: ${value}`);
+  }
+  return decoded;
+}
+function validateBoard(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value) || !Array.isArray(value.verbs)) throw new Error("board.json에 verbs 배열이 필요합니다.");
+  if (value.format !== "task-board") {
+    if (!Array.isArray(value.rows)) throw new Error("알 수 없는 보드 형식이거나 rows 배열이 없습니다.");
+    value.verbs.forEach((verb) => { if (!verb || !Array.isArray(verb.cells)) throw new Error("기존 보드의 cells 배열을 읽을 수 없습니다."); });
+    return;
+  }
+  if (!Array.isArray(value.tasks)) throw new Error("작업 보드에 tasks 배열이 필요합니다.");
+  const names = new Set();
+  value.verbs.forEach((verb) => {
+    if (!verb || typeof verb.name !== "string" || !verb.name.trim() || names.has(verb.name)) throw new Error("사용자 행동의 이름이 없거나 중복됩니다.");
+    names.add(verb.name);
+  });
+  const paths = new Set();
+  value.tasks.forEach((task) => {
+    if (!task || typeof task.name !== "string" || !task.name.trim()) throw new Error("작업 이름이 없습니다.");
+    const path = taskPath(task.path);
+    if (paths.has(path)) throw new Error(`중복 작업 경로: ${task.path}`);
+    paths.add(path);
+    if (!states.some(([state]) => state === task.state)) throw new Error(`잘못된 작업 상태: ${task.name} (${task.state})`);
+    if (task.verb !== null && !names.has(task.verb)) throw new Error(`등록되지 않은 사용자 행동: ${task.name} (${task.verb})`);
+  });
+}
+async function openTask(task) {
+  beginDialog();
+  const request = documentRequest;
+  const body = el("div");
+  body.append(el("p", "", "작업 문서를 읽는 중입니다."));
+  info.append(el("h3", "", task.name), body);
+  showDialog(task.name);
+  const path = taskPath(task.path).split("/").map(encodeURIComponent).join("/");
+  const url = new URL(`${DATA}/${path}`, location.href);
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    if (request !== documentRequest || !info.open) return;
+    body.replaceChildren(...renderMarkdown(text, url));
+  } catch (error) {
+    if (request !== documentRequest || !info.open) return;
+    body.replaceChildren(el("p", "error", `작업 문서를 읽지 못했습니다. ${task.path} (${error.message})`));
+  }
+}
+function renderTasks() {
+  map.className = "task-scroll";
+  const note = el("p", "task-note", "완료는 당시 작업의 결과이며 현재 제품 기능을 보장하지 않습니다. 좁은 화면에서는 표를 좌우로 이동할 수 있습니다.");
+  map.before(note);
+  const table = el("table", "task-table");
+  table.style.minWidth = `${Math.max(600, (board.verbs.length + 1) * 200 + 110)}px`;
+  const caption = el("caption", "", "사용자 행동과 상태별 작업");
+  table.append(caption);
+  const columns = [...board.verbs, { name: "공통", common: true }];
+  const thead = el("thead"); const header = el("tr");
+  const stateHead = el("th", "", "상태"); stateHead.scope = "col"; header.append(stateHead);
+  columns.forEach((verb) => {
+    const th = el("th"); th.scope = "col";
+    const label = el("span", "", verb.name);
+    if (!verb.common && hasInfo(verb)) interactive(label, () => openInfo(verb, "사용자 행동"));
+    th.append(label); header.append(th);
+  });
+  thead.append(header); table.append(thead);
+  const tbody = el("tbody");
+  states.forEach(([state, name]) => {
+    const tr = el("tr"); const th = el("th", "", name); th.scope = "row"; tr.append(th);
+    columns.forEach((verb) => {
+      const td = el("td");
+      board.tasks.filter((task) => task.state === state && task.verb === (verb.common ? null : verb.name)).forEach((task) => {
+        const card = el("button", "task-card", task.name);
+        card.type = "button";
+        card.setAttribute("aria-label", `${task.name} · ${name} · ${verb.name}`);
+        card.addEventListener("click", () => openTask(task)); td.append(card);
+      });
+      tr.append(td);
+    });
+    tbody.append(tr);
+  });
+  table.append(tbody); map.append(table);
+}
+try {
+  if (!projectId || projectId === "." || projectId === ".." || /[\\/]/.test(projectId)) throw new Error("주소 끝에 ?p=프로젝트이름을 붙여 주세요.");
+  const response = await fetch(`${DATA}/board.json`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`board.json을 읽지 못했습니다. HTTP ${response.status}`);
+  board = await response.json();
+  validateBoard(board);
+  document.getElementById("project").textContent = board.project || projectId;
+  if (board.format === "task-board") renderTasks(); else renderLegacy();
+  loadProduct().catch(() => {});
+} catch (error) {
+  map.replaceChildren();
+  const message = el("p", "error", `보드를 읽지 못했습니다. ${error.message}`);
+  message.setAttribute("role", "alert"); sheet.append(message);
+}
+</script>
+</body>
+</html>
