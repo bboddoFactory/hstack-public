@@ -49,7 +49,7 @@
 실행(그 폴더에서, 3분쯤):
 
 ```
-codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --skip-git-repo-check -s workspace-write -o "화면-<호출 이름>-실행보고.md" "이 폴더의 화면-<호출 이름>-요청서.md를 읽고 그대로 수행해라. 요청서에 지정한 시안과 설명 파일을 만들고 기존 요청서와 결과를 덮어쓰지 마라." < /dev/null
+codex exec -m "$(~/workspace/hstack/scripts/codex-model.sh sol)" -c model_reasoning_effort=high --skip-git-repo-check -s workspace-write -o "화면-<호출 이름>-실행보고.md" "이 폴더의 화면-<호출 이름>-요청서.md를 읽고 그대로 수행해라. 요청서에 지정한 시안과 설명 파일을 만들고 기존 요청서와 결과를 덮어쓰지 마라." < /dev/null
 ```
 
 Codex가 없으면 그렇다고 말하고, 글자 와이어프레임으로 대신할지 묻는다.

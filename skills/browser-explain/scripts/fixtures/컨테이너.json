@@ -1,0 +1,29 @@
+{
+  "diagram": "container",
+  "title": "설명 페이지 제작의 구성",
+  "boundary": {"id": "b", "name": "설명 페이지 제작 (사용자 PC 한 대)"},
+  "nodes": [
+    {"id": "user", "role": "person", "name": "사용자", "description": ["메인 에이전트와 이야기한다"]},
+    {"id": "browser", "role": "external", "name": "브라우저", "description": ["PC, 폰, iPad"]},
+    {"id": "main", "role": "app", "name": "메인 에이전트", "technology": "Claude Code 또는 Codex", "description": ["요청서를 쓰고 제작을 맡긴다"]},
+    {"id": "maker", "role": "app", "name": "페이지 제작 에이전트", "technology": "Sonnet, claude -p", "description": ["글과 그림 입력을 쓴다"], "change": "changed"},
+    {"id": "cli", "role": "app", "name": "스킬 CLI", "technology": "하위 명령 넷", "description": ["describe, draw, build, check"], "core": true, "change": "new"},
+    {"id": "engine", "role": "app", "name": "그림 엔진 CLI", "technology": "hstack-diagram", "description": ["그림마다 프로세스를 따로 띄운다"]},
+    {"id": "checker", "role": "app", "name": "페이지 검사", "technology": "check 스크립트", "description": ["Chrome으로 틀을 본다"]},
+    {"id": "folder", "role": "store", "name": "작업 폴더", "technology": "tasks 폴더", "description": ["요청서, 페이지, 그림 입력, SVG"]},
+    {"id": "hub", "role": "app", "name": "허브 서버", "technology": "읽기 전용", "description": ["자료 목록과 페이지를 보여 준다"], "change": "new"}
+  ],
+  "edges": [
+    {"from": "user", "to": "main", "label": "이야기한다"},
+    {"from": "user", "to": "browser", "label": "연다"},
+    {"from": "main", "to": "folder", "label": "요청서를 쓴다"},
+    {"from": "main", "to": "maker", "label": "제작을 맡긴다"},
+    {"from": "maker", "to": "cli", "label": "명령을 부른다", "change": "changed"},
+    {"from": "maker", "to": "folder", "label": "글과 입력을 쓴다"},
+    {"from": "cli", "to": "engine", "label": "draw"},
+    {"from": "cli", "to": "checker", "label": "check"},
+    {"from": "cli", "to": "folder", "label": "SVG와 페이지를 쓴다", "change": "new", "undecided": "그림을 넣는 방식은 미정이다"},
+    {"from": "hub", "to": "folder", "label": "읽는다", "change": "new"},
+    {"from": "browser", "to": "hub", "label": "Tailscale로 받는다", "change": "new", "undecided": "새 자료 알림 방식은 미정이다"}
+  ]
+}

@@ -15,7 +15,7 @@ hstack 버전을 올리기 전에 이 틀로 요청서를 만들어 `data/story-
 2. 기준: `<hstack 루트>/skills/hstack-guide/SKILL.md`의 「스킬과 규칙 문서에 쓰는 것」
 3. 원칙(들): `<hstack 루트>/basics.md`의 「pstack 원칙(들)」. 해당하는 원칙: Subtract Before You Add, Laziness Protocol, Minimize Reader Load. 출발점이며 더하거나 뺄 수 있다. 보고서에 적용한 원칙(들)과 바꾼 판단을 쓴다.
 4. 이번 출시의 변경: `<이전 출시 커밋>..HEAD`의 diff와 출시 작업 파일 `<경로>`
-5. 검토 대상: `basics.md`, `how-we-work.md`, `README.md`, `docs/*.md`, `skills/*/SKILL.md`, `skills/*/references/*.md`, `skills/*/assets/*`, `hooks/reminder.md`, `agents/*.md`
+5. 검토 대상: `basics.md`, `how-we-work.md`, `README.md`, `docs/*.md`, `skills/*/SKILL.md`, `skills/*/references/*.md`, `skills/*/assets/*`, `hooks/reminder.md`
 6. 사용자와 정한 것으로 유지가 기본인 결정: <목록>. 빼자는 제안은 "사용자 결정 변경"으로 표시한다.
 
 ## 검토 질문

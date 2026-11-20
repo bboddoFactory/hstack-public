@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/skills/browser-explain/assets/explain.css?v=20261118">
+<link rel="stylesheet" href="/data/story-map/hstack-diagram/viewer/diagram-viewer.css?v=20261117">
+<title>스킬 CLI가 생겨도 페이지 제작 에이전트는 남는다</title>
+</head>
+<body>
+<main class="page">
+
+<header class="page-head">
+<p class="page-type">제안한 구조, 아직 만들지 않았다</p>
+<h1>스킬 CLI가 생겨도 페이지 제작 에이전트는 남는다</h1>
+<ul class="summary">
+<li><strong>에이전트는 그대로 들어간다.</strong> 글과 그림 입력은 에이전트가 쓰고, 그리기와 넣기와 검사는 스킬 CLI 명령이 한다.</li>
+<li><strong>그림마다 프로세스를 나누고 끊는 장치가 남는다.</strong> 스킬 CLI가 안에서 기존 그림 엔진 CLI를 부르기 때문이다.</li>
+<li><strong>사용자는 허브 서버로 본다.</strong> 늘 켜져 있고 파일을 쓰지 않는다.</li>
+</ul>
+</header>
+
+<section class="claim" id="container">
+<h2>새로 생기는 것은 스킬 CLI와 허브 서버 둘이다</h2>
+<figure class="fig">
+<div class="diagram" data-src="컨테이너.svg"></div>
+<figcaption>
+<p class="fig-sub">컨테이너 그림(C4): 시스템 안에서 따로 실행되는 것과 저장소가 서로 무엇을 부르는지 보이는 그림이다. 무엇이 어디서 도는지 보이려고 골랐다.</p>
+</figcaption>
+<p class="fig-note">CLI는 명령줄에서 부르는 프로그램이다. 헤드리스 세션은 화면 없이 도는 에이전트 세션이다. 스킬 CLI는 안에서 그림 엔진 CLI와 페이지 검사를 부르므로, 그림마다 프로세스를 나누고 오래 걸리면 끊는 장치는 그대로 남는다.</p>
+</figure>
+</section>
+
+<section class="claim" id="sequence">
+<h2>페이지 하나에서 에이전트는 글과 입력만 쓰고 나머지는 명령을 부른다</h2>
+<figure class="fig">
+<div class="diagram" data-src="시퀀스.svg"></div>
+<figcaption>
+<p class="fig-sub">시퀀스 다이어그램: 참가자 사이에 일이 오가는 순서를 보이는 그림이다. 페이지 하나가 만들어질 때 누가 무엇을 하는지 보이려고 골랐다.</p>
+</figcaption>
+</figure>
+</section>
+
+<section class="claim" id="reason">
+<h2>에이전트가 SVG를 읽고 넣는 일이 사라진다</h2>
+<table class="compare">
+<thead><tr><th>일</th><th>에이전트가 직접 하면</th><th>제안한 구조에서</th></tr></thead>
+<tbody>
+<tr>
+<td class="name"><b>그림을 페이지에 넣기</b></td>
+<td data-label="에이전트가 직접 하면">넣는 스크립트를 페이지마다 새로 짠다.</td>
+<td data-label="제안한 구조에서">build가 한다.</td>
+</tr>
+<tr>
+<td class="name"><b>그림 파일(SVG) 다루기</b></td>
+<td data-label="에이전트가 직접 하면">엔진 SVG는 한 장 8~26KB라 읽고 쓰면 토큰이 든다.</td>
+<td data-label="제안한 구조에서">에이전트는 SVG를 읽거나 붙여 넣지 않는다. 엔진 결과는 수백 바이트, 검사 결과는 한 줄이다.</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section class="unknowns" id="unknown">
+<h2>확인하지 못한 것</h2>
+<ul class="unknown-list">
+<li>그림을 페이지에 넣는 방식이 정해지지 않았다. 완성 페이지에 SVG를 그대로 넣거나, 페이지가 그림 파일을 img로 가리킬 수 있다. 한 번 만들어 iPad Safari에서 본 뒤 정하며, build가 하는 일이 이것에 따라 달라진다.</li>
+<li>허브가 새 자료를 사용자에게 알리는 방식이 정해지지 않았다. 허브가 몇 초마다 확인해 표시하는 안을 권고한다.</li>
+</ul>
+</section>
+
+</main>
+<script type="module" src="/data/story-map/hstack-diagram/viewer/diagram-viewer.js?v=20261117"></script>
+</body>
+</html>

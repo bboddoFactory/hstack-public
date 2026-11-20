@@ -1,0 +1,15 @@
+{
+  "format": "task-board",
+  "project": "otterwiki",
+  "verbs": [
+    { "name": "페이지 찾기", "about": "필요한 페이지를 찾아 읽는 행동" }
+  ],
+  "tasks": [
+    {
+      "name": "태그로 페이지 묶어 찾기 추가",
+      "path": "tasks/태그-기능/작업.md",
+      "verb": "페이지 찾기",
+      "state": "doing"
+    }
+  ]
+}

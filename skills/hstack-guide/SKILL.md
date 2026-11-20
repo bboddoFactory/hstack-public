@@ -17,8 +17,8 @@ hstack(`~/workspace/hstack`)을 고치거나 거기에 무언가를 적을 때 �
 |---|---|
 | `basics.md` | 항상 깔리는 것. 사용자와 이야기하는 법, pstack 원칙(들) 표(원칙의 뜻·꺼낼 상황·hstack 조정의 원본), 만들 때의 기본, 기반 영역 표. 전역 `~/.claude/CLAUDE.md`가 불러와 모든 세션에 깔린다 |
 | `how-we-work.md` | 일하는 순서의 지도. 작업의 범위 확인 → 필요한 Understand·Design·Prepare·Layer·Review 및 다른 일의 순서. 공통 레이어 분할 기준, 브라우저 자료의 저장·HTTP 제공·서버 유지, 설계 검토 지적 처리도 여기서 관리한다. 그림 선택과 설명 방식은 browser-explain으로 연결한다 |
-| `skills/hippo-mode/` | 공통 작업 입구. 요청의 목적·범위·현재 기록을 정리하고 필요한 이해·설계·구현·검토로 연결한다. 작업을 스토리맵 보드에서 찾는다 |
-| `skills/story-map/` | 스토리맵 보드와 공용 자료. `references/`에 작업·보드·제품·시안 틀, `board/`에 두 형식을 읽는 화면, `scripts/`에 실행 도구. 별도 스킬 입구는 없으며 기존 주소와 자료 링크를 보존한다 |
+| `skills/hippo-mode/` | 공통 작업 입구. 요청의 목적·범위·현재 기록을 정리하고 필요한 이해·설계·구현·검토로 연결한다. 작업을 작업 보드에서 찾는다 |
+| `skills/story-map/` | 작업 보드와 공용 자료. `references/`에 작업·보드·제품·시안 틀, `board/`에 두 형식을 읽는 화면, `scripts/`에 실행 도구. 별도 스킬 입구는 없으며 기존 주소와 자료 링크를 보존한다 |
 | `skills/prototype/` | 시제품 스킬. 방향을 모를 때 버리는 시제품을 만져 보고 정한다. 본문, `references/`(시제품 지시서) |
 | `skills/understand/` | 현재 구조 이해 스킬. 질문에 필요한 동작·책임·선택 배경을 조사하고 브라우저로 함께 이해한다. `references/`에 관찰 질문·사실 탐색·기술 실험 요청서를 둔다 |
 | `skills/design/` | 변경 설계 스킬. 메인과 두 설계자의 후보·두 별도 적대 검토·사용자 선택과 기록을 연결한다. `references/`에 독립 주제에도 쓰는 설계 요청서를 두며 모델·원칙·검토 기준은 공통 문서를 참조한다 |
@@ -26,7 +26,7 @@ hstack(`~/workspace/hstack`)을 고치거나 거기에 무언가를 적을 때 �
 | `skills/layer/` | 레이어 스킬. 명세·이번 구성·검증 계획을 함께 확인하고 메인의 행동 테스트·구현 위임·동작과 구성의 대조를 거쳐 올린다. `references/`의 구현 요청서에 책임·상태·실패 흐름·검증 증거와 범위를 전달한다 |
 | `skills/review/` | 리뷰 스킬. 같은 요청서의 두 독립 통합 검토·시험 환경 재현·메인의 근거 대조와 사용자 선택을 거쳐 리뷰 레이어로 고치고 닫는다. `references/`에 통합 요청서와 질문을 좁힌 추가 검토 틀을 둔다 |
 | `skills/ui-design/` | 화면 디자인 설명서. 메인이 디자이너 역할로 화면의 값을 정할 때 무엇을 묻고 무엇을 원칙으로 정하나, 모르는 것을 먼저 꺼내는 법. `references/`에 기본 점검표·이론 모음·비교판·anti-pattern 모음·외부 스킬 참고·DESIGN.md 틀 |
-| `skills/browser-explain/` | 질문에 맞는 그림 선택·작성 전 브리핑·브라우저 핵심 해설과 채팅 설명·의미와 화면 점검. `references/`에 그림 선택 기준, `assets/`에 공통 CSS와 흐름도·시퀀스·상태 전이도·설계안·후보 비교 템플릿. 제품 UI 구현은 ui-design이 맡는다 |
+| `skills/browser-explain/` | 설명 페이지와 비교판을 스킬 CLI(`scripts/explain.mjs`)로 만들고 허브(`scripts/hub.mjs`)가 모아 보인다. `references/`에 글 원칙·페이지 뼈대·요청서 틀·그림 선택 기준, `assets/`에 공통 CSS와 빈 틀. 제품 UI 구현은 ui-design이 맡는다 |
 | `skills/codex-automation/` | Codex 자동화 스킬. 자동화를 toml 파일로 만들고 고치고 지우는 법, cron과 heartbeat, 예약 흔들림, 조용히 무시되는 실수, 확인하는 법. |
 | `skills/brief/` | 브리핑 스킬. 돌아왔을 때 프로젝트 요약·현황판·현재 작업 파일과 작업 로그를 읽고 지금 어디인지 알려 준다 |
 | `skills/herdr/` | 허더 스킬. 음성 입력의 표기 차이를 문맥으로 이해하고 위치로 패널을 찾는다. 실제 CLI 사용법은 설치된 공식 지침을 따른다 |
@@ -41,13 +41,12 @@ hstack(`~/workspace/hstack`)을 고치거나 거기에 무언가를 적을 때 �
 | `docs/migrations.md` | 규칙 적용 목록. 버전별로 프로젝트 기록에 영향을 주는 변경, 적용이 필요한지 알아보는 법, 할 일, 그대로 둘 것. `/hstack:migrate`가 읽는다 |
 | `docs/terms.md` | 용어집. hstack이 쓰는 말의 뜻, 일반 용어와 출처, 옛 이름과 피할 말 |
 | `docs/work-records.md` | 작업의 동일성·현재 명세·상태/기준 원본 분담·위임 보고·갱신·완료/취소·기존 자료 읽기의 공통 기준 |
-| `DESIGN.md` | 이 저장소 작업 보드의 장기 UI 기준. 보드 화면 코드와 같은 저장소에 둔다. 다른 제품의 시각 규칙은 각 프로젝트 기록 폴더의 `DESIGN.md` |
+| `DESIGN.md` | 이 저장소 작업 보드, 설명 자료, 허브의 화면 기준. 보드 화면 코드와 같은 저장소에 둔다. 다른 제품의 시각 규칙은 각 프로젝트 기록 폴더의 `DESIGN.md` |
 | `docs/agent-calls.md` | 조사·설계·구현 역할표와 대체 경로. 작업 최종 리뷰·설계 적대 검토의 배정, 단일 제품 경로·시험 실행 범위·실제 모델 확인도 여기서 정한다 |
 | `docs/design-principles-reference.md` | 설계 단계에서 던질 상세 질문·예시·적용 한계·Pstack 출처. 원칙의 뜻은 basics 표가 원본이며 어긋나면 이 문서를 고친다 |
-| `agents/` | 플러그인 에이전트 정의. 구현자 `implementer`(Sonnet high), 독립 의견 Opus `opinion-opus`(xhigh). 모델과 effort를 정의에 고정한다 |
 | `docs/response-style.md` | 공통 응답 원칙의 근거와 수정 예시. 원칙을 고치거나 적용 사례를 검토할 때 참고 |
 | `docs/project-guidance.md` | 프로젝트별 개인 기준의 내용·Hstack 보관·시작 시 읽기·위임 전달·단계별 필수 갱신 검토·메인 편집 책임. 현재 기준은 각 프로젝트의 project-guide.md |
-| `scripts/` | `sync-codex-basics.py`: 공통 본문을 전역 지침에 반영하고 Codex 훅을 등록·검사한다. `mirror-public.sh`: 원본 저장소에서 `data/`를 뺀 사본을 공개 저장소로 올리는 pre-push hook. 원격과 작업 위치는 환경 변수로 정한다 |
+| `scripts/` | `sync-codex-basics.py`: 공통 본문을 전역 지침에 반영하고 Codex 훅을 등록·검사한다. `codex-model.sh <계열>`: Codex 모델 목록에서 그 계열의 가장 높은 판 이름을 낸다(역할표는 계열만 적는다). `mirror-public.sh`: 원본 저장소에서 `data/`를 뺀 사본을 공개 저장소로 올리는 pre-push hook. 원격과 작업 위치는 환경 변수로 정한다 |
 | `hooks/` | 상기형 훅. `hooks.json`(Claude 플러그인 훅), `hooks/remind.sh`(세션별 공백을 재서 [이어가기] 줄을 붙인다. 그 문구도 여기 있다), `hooks/reminder.md`(매 턴 상기 문구 원본). 등록 명령이 그대로라 두 파일을 고쳐도 Codex 재승인이 필요 없다 |
 
 ## 새로 나온 것을 어디에 적나
@@ -66,18 +65,18 @@ hstack(`~/workspace/hstack`)을 고치거나 거기에 무언가를 적을 때 �
 | 한 프로젝트에서 정한 것 | `data/story-map/<프로젝트>/`. 현재 작업의 명세·결정·결과와 근거 연결은 `tasks/<작업 이름>/작업.md`, 새 상세 보고와 레이어 표도 같은 폴더다. 보드는 상태·위치·작업 연결을 관리한다. 기존 단계별 경로는 옮기지 않고 연결한다 |
 | 개편 기준으로 관리하는 작업의 현재 내용과 보고서 | `data/story-map/<프로젝트>/tasks/<작업 이름>/`. `작업.md`에는 현재 합의·짧은 선택 이유·확인 결과·남은 일과 근거를 두고 누적 경과는 작업 로그에 둔다. 메인이 현재 내용을 관리하고 하위 에이전트는 지정된 자기 보고서만 작성한다. 과거 단계별 폴더의 보고서는 옮기거나 복사하지 않는다 |
 | 다음 작업에도 지킬 프로젝트별 개인 기준 | `data/story-map/<프로젝트>/project-guide.md`. 확인된 기준부터 만들고 조건·근거·관련 기록을 연결한다. 프로젝트 내부의 지시 파일이나 링크는 만들지 않는다. 관리 절차는 `docs/project-guidance.md` |
-| 이해·설계의 브라우저 설명 자료 | `tasks/<작업 이름>/설명.html`, `설계.html`. 그림 선택·내용 배치·설명·의미와 화면 점검은 browser-explain, 저장·HTTP 제공은 how-we-work.md를 참조한다. 기존 자료는 실제 경로로 연결한다 |
+| 이해·설계의 브라우저 설명 자료 | `tasks/<작업 이름>/자료/<이름>/`(`explain new`가 만든다). 그림 선택·내용 배치·설명·의미와 화면 점검은 browser-explain, 저장·HTTP 제공은 how-we-work.md를 참조한다. 기존 자료는 실제 경로로 연결한다 |
 | 버전을 올릴 때 프로젝트 기록에 영향이 있는 변경 | `docs/migrations.md`에 항목 |
 | hstack이 쓰는 말(작업, 레이어 등)의 뜻이나 새 말 | `docs/terms.md`. 들이기 전에 겹치는 말이 있는지 본다 |
 | 개인적인 글 쓰는 습관(쓰는 말, 기호) | Claude 메모리. 두 도구가 함께 지킬 대화 행동 원칙은 `basics.md`, 그 근거와 예시는 `docs/response-style.md` |
-| 조사자·독립 검토자·구현자의 모델, effort, 도구별 호출, 막혔을 때의 대체 | `docs/agent-calls.md`의 역할표. 에이전트 정의는 `agents/`. 설치와 인증 준비는 README |
+| 조사자·독립 검토자·구현자의 모델, effort, 도구별 호출, 막혔을 때의 대체 | `docs/agent-calls.md`의 역할표. 설치와 인증 준비는 README |
 | 코드가 알아야 할 이유 | 그 프로젝트의 주석과 커밋 메시지. hstack 경로에 기대지 않는다 |
 
 문서를 새로 만들기 전에 위 표에 들어갈 자리가 있는지 먼저 본다. 자리가 없을 때만 만들고, 만들면 두 표에 줄을 더한다.
 
 ## 스킬과 규칙 문서에 쓰는 것
 
-`basics.md`, `how-we-work.md`, `README.md`, `docs/`, `skills/`, `hooks/`, `agents/`의 문서에 적용한다.
+`basics.md`, `how-we-work.md`, `README.md`, `docs/`, `skills/`, `hooks/`의 문서에 적용한다.
 
 - 규칙 문서는 누구나 받아 쓰는 공용 문서다. 특정 사람·프로젝트의 실제 내용(프로젝트 이름, 실제 값, 사용자 발언, 특정 PC의 경로, 직장 이야기)은 `data/`에 두고 여기에는 쓰지 않는다. 예시가 필요하면 가상의 이름을 쓴다.
 - 읽는 에이전트(또는 사람)가 **할 일**만 쓴다.

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/skills/browser-explain/assets/explain.css?v=20261120">
+<title>허브</title>
+<!-- 허브 화면 한 파일. 색과 글자 크기는 explain.css의 이름만 부른다(값의 원본은 DESIGN.md의 「허브」). 허브 서버가 `/`로 내보낸다 -->
+<style>
+[hidden]{display:none!important}
+html,body{height:100%}
+body{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.top{flex:none;display:flex;align-items:center;gap:8px;min-height:56px;padding:4px 16px 4px 8px;border-bottom:1px solid var(--rule)}
+#path{font-size:var(--fs-s);min-width:0}
+
+.menu{position:relative;flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:8px}
+.menu:hover{background:var(--hover)}
+.menu svg{width:24px;height:24px}
+.menu .pill{position:absolute;top:0;right:-4px}
+.pill{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--bg);font-size:var(--fs-s);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+
+/* 알림 줄: 줄마다 한 행. 줄 사이 구분은 1px 구획선 */
+#notice{flex:none;margin:12px 16px 0;background:var(--soft);border-radius:8px;overflow:hidden}
+#notice>*+*{border-top:1px solid var(--rule)}
+.nrow{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 16px;font-size:var(--fs-s)}
+.nrow .name{flex:1;min-width:0}
+.nrow button{min-height:44px;padding:0 12px;border-radius:8px;font-weight:600}
+.nrow .go,.nmore{color:var(--accent)}
+.nrow .no{color:var(--muted);font-weight:400}
+.nmore{display:block;width:100%;min-height:44px;padding:0 16px;font-size:var(--fs-s);font-weight:600}
+
+#main{flex:1;min-height:0;position:relative}
+#main iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+#main .note{padding:24px 16px}
+#main .home{color:var(--muted)}
+
+/* 서랍: 본문 위를 덮는 modal navigation drawer */
+#scrim{position:fixed;inset:0;background:var(--scrim);z-index:10}
+#drawer{position:fixed;top:0;left:0;bottom:0;width:min(340px,calc(100% - 48px));background:var(--raised);box-shadow:var(--shadow);overflow-y:auto;z-index:11;padding:8px 0}
+#drawer .fail{padding:16px}
+#drawer .fail p{margin:0 0 12px}
+.retry{min-height:44px;padding:0 16px;border:1px solid var(--strong);border-radius:8px;font-weight:600;font-size:var(--fs-s);text-align:center}
+
+/* 목록: WAI-ARIA tree. 들여쓰기는 단계마다 20px, 펼친 노드 아래 1px 안내선(줄마다 윗단계 안내선을 배경으로 그린다) */
+#tree{list-style:none;margin:0;padding:0;max-width:none}
+#tree [role=treeitem]{outline:0;--pad:calc(8px + (var(--l) - 1) * 20px)}
+.row{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px 4px var(--pad);font-size:var(--fs-s);cursor:pointer;background:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px 20px) 18px 0/calc((var(--l) - 1) * 20px) 100% no-repeat}
+.row:hover{background-color:var(--hover)}
+[role=treeitem]:focus-visible>.row{outline:3px solid var(--accent);outline-offset:-3px}
+[role=treeitem][aria-selected=true]>.row{background-color:var(--sel);font-weight:600}
+.row .name{flex:1;min-width:0}
+.row .t{flex:none;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lead{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--muted)}
+.lead svg{width:16px;height:16px}
+.chev{transition:none}
+[aria-expanded=true]>.row .chev{transform:rotate(90deg)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.lvl1>.row .name{font-weight:600}
+.fold-row .name{color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <button class="menu" id="menu" type="button" aria-label="목록 열기" aria-expanded="false" aria-controls="drawer">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div id="path"></div>
+  </header>
+  <section id="notice" aria-label="새 자료" hidden></section>
+  <main id="main"></main>
+</div>
+<div id="scrim" hidden></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-label="목록" hidden>
+  <ul id="tree" role="tree" aria-label="설명 자료"></ul>
+  <div class="fail" id="fail" hidden>
+    <p>목록을 불러오지 못했다</p>
+    <button class="retry" id="retry" type="button">다시 시도</button>
+  </div>
+</aside>
+
+<script>
+'use strict';
+// 상태: 본 상태의 원본은 서버(seen.json). 여기에는 지금 연 것(주소 hash), 펼침과 접힘(메모리), 닫은 알림(localStorage)만 둔다. 목록은 API 결과를 그대로 그린다.
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) if (v != null) n.setAttribute(k, v);
+  n.append(...kids);
+  return n;
+};
+const svg = markup => { const s = document.createElement('span'); s.innerHTML = markup; return s.firstChild; };
+const CHEVRON = '<svg class="chev" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
+const BOARD = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.5"/><path d="M6 2.75v10.5M10 2.75v10.5"/></svg>';
+
+let list = null;          // 마지막으로 받은 API 결과
+let loadFailed = false;   // 처음 읽기에서 실패했고 아직 받은 목록이 없다
+let lastText = null;      // 마지막 응답 본문: 같으면 다시 그리지 않는다(열린 서랍의 초점을 지키려고)
+let loadId = 0;           // 늦게 도착한 옛 응답이 새 것을 덮지 않게
+const collapsed = new Set(), pastOpen = new Set(), moreOpen = new Set();
+let noticeOpen = false;
+
+// ---- 닫은 알림: 작업마다 "그때 가장 새 안 본 판"을 적는다. 더 새 판이 오면 값이 달라져 다시 보인다 ----
+const STORE = 'hstack-hub-dismissed';
+const readStore = () => { try { const v = JSON.parse(localStorage.getItem(STORE)); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } };
+let dismissed = readStore();
+const dismiss = (task, stamp) => {
+  dismissed = { ...readStore(), ...dismissed, [task]: stamp }; // 못 쓰면 이 세션 동안만 기억한다
+  try { localStorage.setItem(STORE, JSON.stringify(dismissed)); } catch { /* 메모리에만 */ }
+};
+
+// ---- 목록을 받는 곳: API 실패는 여기서만 다룬다 ----
+async function load() {
+  const mine = ++loadId;
+  let text, data;
+  try {
+    const res = await fetch('/api/list', { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    text = await res.text();
+    data = JSON.parse(text);
+    if (!Array.isArray(data.projects)) throw new Error('모양이 다르다');
+  } catch {
+    if (mine === loadId && !list) { loadFailed = true; renderChrome(); }
+    return; // 다시 읽기 실패: 마지막 목록을 그대로 두고 다음 읽기에서 잇는다
+  }
+  if (mine !== loadId) return;
+  loadFailed = false;
+  if (text === lastText) return;
+  lastText = text; list = data;
+  renderBody(); renderChrome();
+}
+
+// ---- 지금 연 것: hash가 원본 ----
+const hashText = () => { try { return decodeURIComponent(location.hash.slice(1)); } catch { return null; } };
+const findMaterial = id => {
+  for (const project of list?.projects ?? []) for (const task of project.tasks) for (const material of task.materials) if (material.id === id) return { project, task, material };
+  return null;
+};
+const current = () => {
+  const s = hashText();
+  if (s === '') return { kind: 'home' };
+  if (s?.startsWith('보드/')) return { kind: 'board', project: s.slice(3) };
+  if (!list) return loadFailed || s === null ? { kind: 'none' } : { kind: 'pending' };
+  const found = s === null ? null : findMaterial(s);
+  return found ? { kind: 'material', ...found } : { kind: 'missing' };
+};
+const go = text => {
+  if (hashText() === text) return renderBody(true); // 이미 연 것을 다시 고르면 새 판을 읽는다
+  location.hash = encodeURIComponent(text);         // 뒤로 가기는 브라우저의 hash 기록을 그대로 쓴다
+};
+window.addEventListener('hashchange', () => { renderBody(); renderChrome(); });
+
+async function markSeen(material) {
+  loadId++; lastText = null;     // 이미 날아간 읽기가 안 본 것으로 되돌리지 못하게
+  material.unseen = false;
+  renderChrome();
+  try {
+    const res = await fetch('/api/seen', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: material.id, version: material.version }) });
+    if (!res.ok) throw new Error(String(res.status));
+  } catch { return; } // 연 것으로 보인 채 두고, 다음 다시 읽기에서 서버 값이 이긴다
+  load();
+}
+
+// ---- 본문: 자료나 보드를 iframe 하나에 연다. 같은 것이면 다시 읽지 않는다(다시 읽기마다 판이 깜박이지 않게) ----
+const main = $('main');
+const setBody = (key, make) => {
+  if (main.dataset.key === key) return false;
+  main.dataset.key = key;
+  main.replaceChildren(make());
+  return true;
+};
+const frame = (title, src) => el('iframe', { title, src });
+function renderBody(force = false) {
+  const cur = current();
+  if (cur.kind === 'home') setBody('home', () => el('p', { class: 'note home' }, '대시보드 (예정)'));
+  else if (cur.kind === 'board') {
+    const src = `/skills/story-map/board/?p=${encodeURIComponent(cur.project)}`;
+    if (!setBody(`b:${cur.project}`, () => frame(`${cur.project} 작업 보드`, src)) && force) main.firstChild.setAttribute('src', src);
+  } else if (cur.kind === 'material') {
+    const { material } = cur;
+    const opened = setBody(`m:${material.id}`, () => frame(material.title, material.url));
+    if (!opened && force && main.firstChild.getAttribute('src') !== material.url) main.firstChild.setAttribute('src', material.url);
+    if ((opened || force) && material.unseen) markSeen(material);
+  } else if (cur.kind === 'missing') {
+    if (setBody(`x:${location.hash}`, () => el('p', { class: 'note', role: 'status' }, '이 자료를 찾지 못했다'))) openDrawer();
+  } else setBody(cur.kind, () => document.createDocumentFragment());
+}
+
+// ---- 서랍 ----
+const drawer = $('drawer'), scrim = $('scrim'), tree = $('tree'), menu = $('menu');
+function openDrawer() {
+  drawer.hidden = scrim.hidden = false;
+  $('app').inert = true;
+  menu.setAttribute('aria-expanded', 'true');
+  (loadFailed ? $('retry') : tree.querySelector('[tabindex="0"]'))?.focus();
+}
+function closeDrawer() {
+  if (drawer.hidden) return;
+  drawer.hidden = scrim.hidden = true;
+  $('app').inert = false;
+  menu.setAttribute('aria-expanded', 'false');
+  menu.focus();
+}
+menu.addEventListener('click', openDrawer);
+scrim.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+$('retry').addEventListener('click', load);
+
+// ---- 그리기: 상태(목록, 연 것, 펼침, 닫은 알림)에서 매번 파생 ----
+const pad = n => String(n).padStart(2, '0');
+const clock = iso => {
+  const d = new Date(iso), n = new Date();
+  return d.toDateString() === n.toDateString() ? `${pad(d.getHours())}:${pad(d.getMinutes())}` : `${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+const unseenOf = task => task.materials.filter(m => m.unseen);
+
+// 목록은 평평한 tree다: 항목은 aria-level로 깊이를 말하고, 항목 하나는 자기 줄만 든다
+function node(key, level, props, row) {
+  return el('li', { role: 'treeitem', 'aria-level': level, 'aria-expanded': props.expanded, 'aria-selected': props.selected, 'data-key': key, tabindex: -1, style: `--l:${level}`, class: props.cls ?? (level === 1 ? 'lvl1' : null) }, row);
+}
+const row = (lead, name, ...tail) => el('div', { class: 'row' }, el('span', { class: 'lead' }, ...(lead ? [lead] : [])), el('span', { class: 'name' }, name), ...tail);
+const badge = (text, cls) => el('span', { class: `pill ${cls ?? ''}` }, text);
+const timeCell = iso => el('span', { class: 't' }, clock(iso));
+
+function addTask(out, project, task, cur) {
+  const key = `t:${project.id}/${task.id}`, open = !collapsed.has(key);
+  const count = unseenOf(task).length;
+  out.push(node(key, 2, { expanded: String(open) }, row(svg(CHEVRON), task.name, ...(count ? [badge(String(count))] : []), timeCell(task.materials[0].time))));
+  if (!open) return;
+  const shown = moreOpen.has(key) ? task.materials : task.materials.slice(0, 5);
+  for (const material of shown) {
+    const selected = cur.kind === 'material' && cur.material.id === material.id;
+    out.push(node(`m:${material.id}`, 3, { selected: String(selected) },
+      row(el('span', { class: 'dot' }), material.title, ...(material.unseen ? [badge('NEW')] : []), timeCell(material.time))));
+  }
+  if (shown.length < task.materials.length) out.push(node(`y:${key}`, 3, { cls: 'fold-row' }, row(null, `자료 ${task.materials.length - shown.length}개 더`)));
+}
+function addProject(out, project, cur) {
+  const key = `p:${project.id}`, open = !collapsed.has(key);
+  out.push(node(key, 1, { expanded: String(open) }, row(svg(CHEVRON), project.id)));
+  if (!open) return;
+  out.push(node(`b:${project.id}`, 2, { selected: String(cur.kind === 'board' && cur.project === project.id) }, row(svg(BOARD), '작업 보드')));
+  for (const task of project.tasks.filter(t => !t.past)) addTask(out, project, task, cur);
+  const past = project.tasks.filter(t => t.past);
+  if (!past.length) return;
+  const pk = `x:${project.id}`, pastShown = pastOpen.has(pk);
+  out.push(node(pk, 2, { expanded: String(pastShown), cls: 'fold-row' }, row(svg(CHEVRON), `지난 자료 ${past.reduce((n, t) => n + t.materials.length, 0)}`)));
+  if (pastShown) for (const task of past) addTask(out, project, task, cur);
+}
+
+function renderTree(cur) {
+  const focused = tree.contains(document.activeElement) ? document.activeElement.dataset.key : null;
+  $('fail').hidden = !loadFailed;
+  tree.hidden = !list;
+  if (!list) { tree.replaceChildren(); return; }
+  const items = [];
+  for (const project of list.projects) addProject(items, project, cur);
+  tree.replaceChildren(...items);
+  const stop = (focused && tree.querySelector(`[data-key="${CSS.escape(focused)}"]`)) || tree.querySelector('[aria-selected=true]') || tree.querySelector('[role=treeitem]');
+  if (stop) stop.tabIndex = 0;
+  if (focused) stop?.focus();
+}
+
+function renderNotice() {
+  const rows = [];
+  for (const project of list?.projects ?? []) for (const task of project.tasks) {
+    const unseen = unseenOf(task);
+    if (!unseen.length) continue;
+    const latest = unseen.reduce((a, b) => (Date.parse(b.time) > Date.parse(a.time) ? b : a));
+    const stamp = `${latest.id}@${latest.version}`, taskKey = `${project.id}/${task.id}`;
+    if (dismissed[taskKey] !== stamp) rows.push({ task, taskKey, latest, stamp });
+  }
+  const box = $('notice');
+  box.hidden = !rows.length;
+  const shown = noticeOpen ? rows : rows.slice(0, 3);
+  const items = shown.map(({ task, taskKey, latest, stamp }, i) => {
+    const id = `n${i}`;
+    const open = el('button', { class: 'go', type: 'button', 'aria-describedby': id }, '열기');
+    const close = el('button', { class: 'no', type: 'button', 'aria-describedby': id }, '닫기');
+    open.addEventListener('click', () => go(latest.id));
+    close.addEventListener('click', () => { dismiss(taskKey, stamp); renderNotice(); });
+    return el('div', { class: 'nrow' }, el('span', { class: 'name', id }, task.name), open, close);
+  });
+  if (rows.length > 3) {
+    const more = el('button', { class: 'nmore', type: 'button', 'aria-expanded': String(noticeOpen) }, noticeOpen ? '접기' : `외 ${rows.length - 3}개`);
+    more.addEventListener('click', () => { noticeOpen = !noticeOpen; renderNotice(); });
+    items.push(more);
+  }
+  box.replaceChildren(...items);
+}
+
+function renderChrome() {
+  const cur = current();
+  $('path').textContent = cur.kind === 'home' ? '홈'
+    : cur.kind === 'board' ? `${cur.project} / 작업 보드`
+    : cur.kind === 'material' ? `${cur.project.id} / ${cur.task.name} / ${cur.material.title}` : '';
+  const total = list ? list.projects.reduce((n, p) => n + p.tasks.reduce((m, t) => m + unseenOf(t).length, 0), 0) : 0;
+  menu.setAttribute('aria-label', total ? `목록 열기, 새 자료 ${total}개` : '목록 열기');
+  menu.querySelector('.pill')?.remove();
+  if (total) menu.append(badge(String(total)));
+  renderTree(cur);
+  renderNotice();
+}
+
+// ---- 목록의 조작: 마우스와 키보드가 같은 길을 지난다 ----
+function activate(li) {
+  const key = li.dataset.key, kind = key[0], rest = key.slice(2);
+  const flip = (set, k) => { set.has(k) ? set.delete(k) : set.add(k); renderChrome(); };
+  if (kind === 'p' || kind === 't') flip(collapsed, key);
+  else if (kind === 'x') flip(pastOpen, key);
+  else if (kind === 'y') { moreOpen.add(rest); renderChrome(); }
+  else { // 자료나 보드를 고르면 서랍이 닫힌다
+    go(kind === 'b' ? `보드/${rest}` : rest);
+    closeDrawer();
+  }
+}
+const itemOf = e => e.target.closest('[role=treeitem]');
+tree.addEventListener('click', e => { const li = itemOf(e); if (li) activate(li); });
+tree.addEventListener('keydown', e => {
+  const li = itemOf(e);
+  if (!li || e.target !== li) return;
+  const all = [...tree.querySelectorAll('[role=treeitem]')], at = all.indexOf(li);
+  const expandable = li.hasAttribute('aria-expanded'), open = li.getAttribute('aria-expanded') === 'true';
+  const focus = target => { if (target) { all.forEach(n => { n.tabIndex = -1; }); target.tabIndex = 0; target.focus(); } e.preventDefault(); };
+  const toggle = want => { if (expandable && open !== want) { activate(li); } e.preventDefault(); };
+  switch (e.key) {
+    case 'ArrowDown': return focus(all[at + 1]);
+    case 'ArrowUp': return focus(all[at - 1]);
+    case 'Home': return focus(all[0]);
+    case 'End': return focus(all.at(-1));
+    case 'ArrowRight':
+      if (expandable && !open) return toggle(true);
+      return focus(+all[at + 1]?.getAttribute('aria-level') > +li.getAttribute('aria-level') ? all[at + 1] : null);
+    case 'ArrowLeft':
+      if (expandable && open) return toggle(false);
+      return focus(all.slice(0, at).reverse().find(n => +n.getAttribute('aria-level') < +li.getAttribute('aria-level')));
+    case 'Enter': case ' ': e.preventDefault(); return activate(li);
+  }
+});
+
+// ---- 시작: 목록을 10초마다 다시 읽는다. 탭이 가려져 있으면 멈추고, 다시 보이면 바로 한 번 ----
+renderBody(); renderChrome(); load();
+setInterval(() => { if (!document.hidden) load(); }, 10000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

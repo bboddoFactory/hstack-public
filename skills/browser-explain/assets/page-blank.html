@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/skills/browser-explain/assets/explain.css?v=20261120">
+<link rel="stylesheet" href="/data/story-map/hstack-diagram/viewer/diagram-viewer.css?v=20261117">
+<title>{{제목}}</title>
+</head>
+<body>
+<main class="page">
+
+<!-- 머리: h1은 주장이나 고를 질문을 길게 써도 된다. 목록에 보이는 이름은 위의 title이고 짧게(30자 이하) 둔다. 요약은 세 항목 이하 -->
+<header class="page-head">
+<h1>{{제목}}</h1>
+<ul class="summary">
+<li><strong>핵심 구절.</strong> 이유 한 마디.</li>
+</ul>
+</header>
+
+<!-- 본문 절: 절 하나가 주장 하나. 그림 자리 쓰는 법은 page-skeleton.md의 「엔진이 그린 그림 넣기」 -->
+<section class="claim" id="claim-1">
+<h2>주장 한 문장</h2>
+</section>
+
+<!-- 확인하지 못한 것: 맨 아래 한 곳 -->
+<section class="unknowns" id="unknown">
+<h2>확인하지 못한 것</h2>
+<ul class="unknown-list">
+<li>결론을 바꿀 수 있는 것만 적는다.</li>
+</ul>
+</section>
+
+</main>
+<script type="module" src="/data/story-map/hstack-diagram/viewer/diagram-viewer.js?v=20261117"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "diagram": "sequence",
+  "title": "페이지 하나가 만들어지는 순서",
+  "participants": [
+    {"id": "user", "role": "person", "name": "사용자"},
+    {"id": "main", "name": "메인 에이전트"},
+    {"id": "maker", "name": "제작 에이전트", "description": "페이지 제작"},
+    {"id": "cli", "name": "스킬 CLI", "change": "new"},
+    {"id": "engine", "name": "그림 엔진"},
+    {"id": "checker", "name": "페이지 검사"},
+    {"id": "folder", "role": "store", "name": "작업 폴더"},
+    {"id": "hub", "name": "허브 서버", "change": "new"},
+    {"id": "browser", "role": "external", "name": "브라우저"}
+  ],
+  "messages": [
+    {"from": "user", "to": "main", "label": "작업 이야기"},
+    {"from": "main", "to": "folder", "label": "요청서 쓰기"},
+    {"from": "main", "to": "maker", "label": "제작 맡김"},
+    {"from": "maker", "to": "cli", "label": "describe"},
+    {"kind": "return", "from": "cli", "to": "maker", "label": "입력 설명"},
+    {"from": "maker", "to": "folder", "label": "원본과 입력 쓰기"},
+    {"from": "maker", "to": "cli", "label": "draw"},
+    {"from": "cli", "to": "engine", "label": "그리게 함"},
+    {"from": "cli", "to": "folder", "label": "SVG 저장"},
+    {"kind": "alt", "branches": [
+      {"condition": "입력이 맞다", "messages": [
+        {"kind": "return", "from": "cli", "to": "maker", "label": "짧은 결과"}
+      ]},
+      {"condition": "입력이 틀리다", "messages": [
+        {"kind": "return", "from": "cli", "to": "maker", "label": "고칠 곳"},
+        {"from": "maker", "to": "maker", "label": "고쳐 다시 draw"}
+      ]}
+    ]},
+    {"from": "maker", "to": "cli", "label": "build", "undecided": "그림 넣는 방식은 미정이다"},
+    {"from": "cli", "to": "folder", "label": "완성 페이지 쓰기"},
+    {"from": "maker", "to": "cli", "label": "check"},
+    {"from": "cli", "to": "checker", "label": "검사하게 함"},
+    {"kind": "return", "from": "cli", "to": "maker", "label": "한 줄 결과"},
+    {"kind": "return", "from": "maker", "to": "main", "label": "보고서 경로"},
+    {"kind": "return", "from": "main", "to": "user", "label": "허브에 올렸다"},
+    {"from": "user", "to": "browser", "label": "허브 열기"},
+    {"from": "browser", "to": "hub", "label": "목록과 페이지 요청", "undecided": "새 자료 알림 방식은 미정이다"},
+    {"from": "hub", "to": "folder", "label": "읽기"},
+    {"kind": "return", "from": "hub", "to": "browser", "label": "목록과 페이지"}
+  ]
+}

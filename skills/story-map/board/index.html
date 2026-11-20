@@ -3,123 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>현황판</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/skills/browser-explain/assets/explain.css?v=20261120">
+<title>작업 보드</title>
 <style>
-  :root {
-    --bg: #ffffff;
-    --text: #1d1d20;
-    --soft: #6a6a72;
-    --line: #c9c9d1;
-    --mark: #d93a2b;
-    --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
-    color-scheme: light;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    background: var(--bg); color: var(--text);
-    font: 18px/1.5 var(--font);
-    -webkit-font-smoothing: antialiased;
-    word-break: keep-all; overflow-wrap: anywhere;
-  }
-  .sheet { max-width: 1400px; margin: 0 auto; padding: 44px 44px 80px; }
-  .project { margin: 0; font-size: 16px; color: var(--soft); }
-  h1 { margin: 0 0 6px; font-size: 44px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+  /* 색, 글자 크기, 그림자는 explain.css의 이름만 부른다(값의 원본은 DESIGN.md) */
+  .sheet { max-width: 1400px; margin: 0 auto; padding: 48px 32px; }
+  .sheet > header { margin-bottom: 32px; }
+  .project { margin: 0; font-size: var(--fs-s); color: var(--muted); }
+  h1 { margin-bottom: 8px; }
+  /* 다른 창의 iframe(허브 본문) 안에서는 허브 윗줄이 이미 "<프로젝트> / 작업 보드"를 말한다 */
+  .embedded .project, .embedded h1 { display: none; }
+  .purpose { margin: 0 0 8px; }
+  .purpose.clickable { text-decoration: underline; text-decoration-color: var(--strong); text-underline-offset: 4px; }
+  .note { margin: 0; font-size: var(--fs-s); color: var(--muted); }
+  .clickable { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  button { font: inherit; color: inherit; }
+  .error { white-space: pre-wrap; padding: 12px 16px; background: var(--note); color: var(--note-ink); border: 1px solid var(--note-line); border-radius: 8px; }
 
-  .purpose { margin: 0 0 36px; color: var(--soft); max-width: 60ch; }
-  .purpose:empty { margin-bottom: 30px; }
-  .purpose.clickable { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px; }
-  dialog h2.md { margin: 18px 0 4px; font-size: 18px; font-weight: 800; }
-  dialog ol { margin: 0; padding-left: 1.3em; }
+  /* 상태 칸반: 넓은 화면은 네 열, 폭 720px 미만은 탭이 고른 열 하나 */
+  .kanban { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+  .state-col { min-width: 0; }
+  .state-head { margin: 0 0 12px; padding: 0 0 8px; font-size: var(--fs-t); line-height: 1.3; letter-spacing: 0; border-bottom: 1px solid var(--strong); }
+  .n { font-variant-numeric: tabular-nums; font-weight: 400; color: var(--muted); }
+  .cards { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; max-width: none; }
+  .task-card { display: block; width: 100%; min-height: 44px; padding: 8px 12px; text-align: left; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; overflow-wrap: anywhere; }
+  .task-card:hover { background: var(--alt); }
+  .tabs { display: none; }
 
-  /* 맵: 동사마다 한 열. 에픽마다 "목적 띠" 한 행과 "칸" 한 행을 쓴다. 행 높이는 모든 열이 함께 쓴다. */
-  .map { display: grid; grid-template-columns: repeat(var(--verbs), minmax(0, 1fr)); column-gap: 36px; }
+  /* 대화상자: 허브 서랍과 같은 떠 있는 면 */
+  dialog { width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 24px; border: 0; border-radius: 8px; background: var(--raised); color: var(--ink); box-shadow: var(--shadow); font-size: var(--fs-t); line-height: 1.6; }
+  dialog::backdrop { background: var(--scrim); }
+  dialog h3 { margin: 0 0 4px; }
+  dialog .doc h3 { margin: 24px 0 8px; }
+  dialog h4.md { margin: 24px 0 8px; font-size: var(--fs-t); font-weight: 600; color: var(--ink); }
+  dialog .doc > :first-child { margin-top: 0; }
+  dialog p { margin: 0 0 12px; max-width: none; }
+  dialog ul, dialog ol { margin: 0 0 12px; padding-left: 24px; max-width: none; }
+  dialog .kind { margin: 0 0 16px; font-size: var(--fs-s); color: var(--muted); }
+  dialog h4 { margin: 16px 0 4px; font-size: var(--fs-s); font-weight: 600; color: var(--muted); }
+  dialog pre { margin: 0 0 12px; padding: 12px 16px; background: var(--alt); border: 1px solid var(--rule); border-radius: 8px; font-size: var(--fs-s); white-space: pre-wrap; overflow-wrap: anywhere; }
+  dialog pre code { padding: 0; background: none; }
+  dialog .close { min-height: 44px; margin-top: 16px; padding: 0 16px; font-weight: 600; background: none; border: 1px solid var(--strong); border-radius: 8px; cursor: pointer; }
+
+  @media (max-width: 719.98px) {
+    .sheet { padding: 24px 16px 48px; }
+    .sheet > header { margin-bottom: 24px; }
+    .tabs { display: flex; margin-bottom: 16px; border-bottom: 1px solid var(--rule); overflow-x: auto; }
+    .tab { flex: 1 0 auto; min-height: 44px; padding: 0 8px; font-weight: 600; text-align: center; white-space: nowrap; color: var(--muted); background: none; border: 0; cursor: pointer; }
+    .tab[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+    .kanban { display: block; }
+    .state-col:not(.is-selected), .state-head { display: none; }
+  }
+
+  /* 옛 에픽 보드: 동사마다 한 열. 에픽마다 "목적 띠" 한 행과 "칸" 한 행을 쓴다. 행 높이는 모든 열이 함께 쓴다. */
+  .map { display: grid; grid-template-columns: repeat(var(--verbs), minmax(0, 1fr)); column-gap: 32px; }
   .col { display: grid; grid-row: 1 / span var(--tracks); grid-template-rows: subgrid; }
   /* 약속: 동사가 아니라 앱이 항상 지키는 것. 맨 오른쪽에 두고 세로 선으로 동사와 가른다. */
   .col.promise { position: relative; }
-  .col.promise::before { content: ""; position: absolute; top: 0; bottom: 0; left: -18px; border-left: 1px solid var(--line); }
-  .col.promise .head { color: var(--soft); }
-  .head { margin: 0; padding: 0 0 12px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; border-bottom: 1px solid var(--text); }
-  .band { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 16px; padding: 30px 0 2px; }
-  .band .row-name { flex: none; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
-  .band .goal { margin: 0; color: var(--soft); }
-  .cell { padding: 6px 0 22px; }
-  .item { display: flex; align-items: baseline; gap: 10px; min-height: 48px; padding: 12px 4px 10px; border-bottom: 1px solid var(--line); }
+  .col.promise::before { content: ""; position: absolute; top: 0; bottom: 0; left: -16px; border-left: 1px solid var(--rule); }
+  .col.promise .vhead { color: var(--muted); }
+  .vhead { margin: 0; padding: 0 0 12px; font-size: 20px; line-height: 1.3; letter-spacing: 0; border-bottom: 1px solid var(--strong); }
+  .band { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 16px; padding: 32px 0 4px; }
+  .band .row-name { flex: none; font-size: 20px; font-weight: 600; }
+  .band .goal { margin: 0; color: var(--muted); }
+  .cell { padding: 8px 0 24px; }
+  .item { display: flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 12px 4px 8px; border-bottom: 1px solid var(--rule); }
   .item.empty { border-bottom-color: transparent; }
   .item .name { position: relative; }
   .item.done::after { content: "✓"; }
   .item.now .name::before {
-    content: ""; position: absolute; inset: -7px -14px -6px -14px;
-    border: 2px solid var(--mark); border-radius: 50%; transform: rotate(-2deg);
+    content: ""; position: absolute; inset: -8px -12px -4px -12px;
+    border: 2px solid var(--accent); border-radius: 50%; transform: rotate(-2deg);
   }
-  .item.now::after { content: "지금 하는 곳"; font-size: 15px; font-weight: 600; color: var(--mark); margin-left: 18px; }
+  .item.now::after { content: "지금 하는 곳"; font-size: var(--fs-s); font-weight: 600; color: var(--accent); margin-left: 16px; }
   .row-tag { display: none; }
-  .clickable { cursor: pointer; }
-  .item.clickable .name, .head.clickable, .row-name.clickable { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px; }
-  dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); border: 1px solid var(--text); border-radius: 6px; padding: 24px 26px; color: var(--text); font: 17px/1.6 var(--font); }
-  dialog::backdrop { background: rgba(0, 0, 0, 0.25); }
-  dialog h3 { margin: 0 0 4px; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
-  dialog .kind { margin: 0 0 14px; font-size: 15px; color: var(--soft); }
-  dialog h4 { margin: 16px 0 2px; font-size: 15px; font-weight: 700; color: var(--soft); }
-  dialog p { margin: 0; }
-  dialog ul { margin: 0; padding-left: 1.1em; }
-  dialog a { color: var(--text); }
-  dialog .close { margin-top: 22px; font: inherit; font-size: 16px; font-weight: 700; background: none; border: 1px solid var(--text); border-radius: 6px; padding: 8px 16px; cursor: pointer; }
-
-  :focus-visible { outline: 3px solid var(--mark); outline-offset: 4px; }
-  .error { color: #a62419; white-space: pre-wrap; }
-  .task-note { color: var(--soft); font-size: 15px; }
-  .task-scroll { overflow-x: auto; }
-  .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .task-table th, .task-table td { padding: 14px 12px; vertical-align: top; border-bottom: 1px solid var(--line); text-align: left; }
-  .task-table thead th { border-bottom-color: var(--text); }
-  .task-table tbody th { width: 6em; position: sticky; left: 0; background: var(--bg); }
-  .task-card { display: block; width: 100%; margin: 0 0 10px; padding: 12px; text-align: left; font: inherit; color: var(--text); background: white; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
-  .task-card:last-child { margin-bottom: 0; }
-  dialog pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-  dialog p + p { margin-top: 8px; }
+  .item.clickable .name, .vhead.clickable, .row-name.clickable { text-decoration: underline; text-decoration-color: var(--strong); text-underline-offset: 4px; }
 
   @media (max-width: 899px) {
-    body { font-size: 17px; }
-    .sheet { padding: 28px 18px 64px; }
-    h1 { font-size: 34px; }
-    .purpose { margin-bottom: 20px; }
     .map { display: block; }
-    .band { display: block; padding: 0 0 14px; }
+    .band { display: block; padding: 0 0 16px; }
     .band.no-goal { display: none; }
-    .band .row-name { font-size: 17px; margin-right: 8px; }
+    .band .row-name { font-size: var(--fs-t); margin-right: 8px; }
     .band .goal { display: inline; }
-    .col { display: block; margin: 0 0 28px; }
-    .col:first-of-type { margin-top: 18px; }
+    .col { display: block; margin: 0 0 32px; }
+    .col:first-of-type { margin-top: 16px; }
     .col.promise::before { display: none; }
-    .col.promise { padding-top: 20px; border-top: 1px solid var(--line); }
+    .col.promise { padding-top: 24px; border-top: 1px solid var(--rule); }
     .spacer { display: none; }
-    .head { font-size: 21px; padding-bottom: 8px; }
-    .cell { display: flex; gap: 14px; padding: 8px 0 0; }
+    .vhead { padding-bottom: 8px; }
+    .cell { display: flex; gap: 16px; padding: 8px 0 0; }
     .cell.blank { display: none; }
-    .row-tag { display: block; flex: none; width: 3.2em; padding-top: 12px; font-size: 15px; font-weight: 700; color: var(--soft); }
+    .row-tag { display: block; flex: none; width: 3.2em; padding-top: 12px; font-size: var(--fs-s); font-weight: 600; color: var(--muted); }
     .cell .items { flex: 1; min-width: 0; }
   }
 </style>
 </head>
 <body>
 <main class="sheet">
-  <p class="project" id="project"></p>
-  <h1>현황판</h1>
-  <p class="purpose" id="purpose"></p>
+  <header>
+    <p class="project" id="project"></p>
+    <h1>작업 보드</h1>
+    <p class="purpose" id="purpose"></p>
+    <p class="note" id="note" hidden>완료는 당시 합의한 작업 결과의 확인이며 현재 제품 기능을 보장하지 않습니다.</p>
+  </header>
+  <div class="tabs" id="tabs" role="tablist" aria-label="작업 상태"></div>
   <div class="map" id="map"></div>
   <dialog id="info"></dialog>
 </main>
 
 <script type="module">
-// 맵 내용은 data/story-map/<프로젝트 이름>/board.json 에 있다. 주소의 ?p= 로 프로젝트를 고른다.
+// 보드 내용은 data/story-map/<프로젝트 이름>/board.json 에 있다. 주소의 ?p= 로 프로젝트를 고른다.
 const projectId = new URLSearchParams(location.search).get("p");
 // 산출물은 hstack 저장소의 data/story-map/<프로젝트 이름>/ 에 있다. 이 틀은 skills/story-map/board/ 에 있으므로 세 단계 위가 저장소 루트다.
 const DATA = `../../../data/story-map/${encodeURIComponent(projectId ?? "")}`;
 const sheet = document.querySelector(".sheet");
+if (window.parent !== window) sheet.classList.add("embedded");
 let board;
 
-// 동사나 칸을 누르면 뜨는 정보 창.
+// 옛 에픽 보드에서 동사나 칸을 누르면 뜨는 정보 창.
 // 동사: about(무엇을 하는 단계인가), log
 // 칸: what(할 수 있게 되는 것), screen(화면 디자인 필요/불필요/애매), decided(정한 것), comps(시안 경로), undecided(정하지 않은 것), log
 // 에픽: goal(목적), check(끝났다고 보는 조건), state, log
@@ -167,6 +171,7 @@ function beginDialog() {
 function showDialog(label) {
   info.setAttribute("aria-label", label);
   const close = el("button", "close", "닫기");
+  close.type = "button";
   close.addEventListener("click", () => info.close());
   info.append(close);
   if (!info.open) info.showModal();
@@ -185,7 +190,7 @@ function interactive(node, action) {
   });
 }
 
-// 제품 문서: data/story-map/<이름>/product.md. 머리말의 summary를 제목 아래에 보이고, 누르면 본문을 정보 창으로 연다.
+// 제품 문서: data/story-map/<이름>/product.md. 머리말의 summary를 제목 아래에 보이고, 누르면 본문을 대화상자로 연다.
 async function loadProduct() {
   const res = await fetch(`${DATA}/product.md`, { cache: "no-store" });
   if (!res.ok) return;
@@ -197,12 +202,14 @@ async function loadProduct() {
   purpose.textContent = summary || "제품 문서";
   interactive(purpose, () => {
     beginDialog();
-    info.append(...renderMarkdown(body, new URL(`${DATA}/product.md`, location.href)));
+    const doc = el("div", "doc");
+    doc.append(...renderMarkdown(body, new URL(`${DATA}/product.md`, location.href)));
+    info.append(doc);
     showDialog("제품 문서");
   });
 }
 
-// 제품 문서에 쓰는 만큼만 그리는 작은 마크다운 그리기: 제목, 문단, 목록, 굵게, 코드
+// 제품 문서와 작업 문서에 쓰는 만큼만 그리는 작은 마크다운 그리기: 제목, 문단, 목록, 굵게, 코드
 function safeLink(value, base) {
   try {
     const url = new URL(value, base);
@@ -250,7 +257,7 @@ function renderMarkdown(md, base = location.href) {
     list = null;
     if (!t) return;
     const heading = t.match(/^(#{1,6})\s+(.*)$/);
-    if (heading) { const h = el(heading[1].length === 1 ? "h3" : "h2", "md"); h.append(inline(heading[2])); out.push(h); }
+    if (heading) { const h = heading[1].length === 1 ? el("h3") : el("h4", "md"); h.append(inline(heading[2])); out.push(h); }
     else { const p = el("p"); p.append(inline(t)); out.push(p); }
   });
   return out;
@@ -285,7 +292,7 @@ board.verbs.forEach((verb, v) => {
   const promise = verb.kind === "promise";
   const col = el("section", "col" + (promise ? " promise" : ""));
   col.style.gridColumn = String(v + 1);
-  const head = el("h2", "head", verb.name);
+  const head = el("h2", "vhead", verb.name);
   if (hasInfo(verb)) {
     interactive(head, () => openInfo(verb, promise ? "약속" : "동사"));
   }
@@ -323,33 +330,29 @@ function taskPath(value) {
   }
   return decoded;
 }
+// 새 형식은 verbs와 tasks[].verb를 읽지 않는다. 남아 있어도 무시한다.
 function validateBoard(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value) || !Array.isArray(value.verbs)) throw new Error("board.json에 verbs 배열이 필요합니다.");
-  if (value.format !== "task-board") {
-    if (!Array.isArray(value.rows)) throw new Error("알 수 없는 보드 형식이거나 rows 배열이 없습니다.");
-    value.verbs.forEach((verb) => { if (!verb || !Array.isArray(verb.cells)) throw new Error("기존 보드의 cells 배열을 읽을 수 없습니다."); });
+  const isObject = value && typeof value === "object" && !Array.isArray(value);
+  if (isObject && value.format === "task-board") {
+    if (!Array.isArray(value.tasks)) throw new Error("작업 보드에 tasks 배열이 필요합니다.");
+    const paths = new Set();
+    value.tasks.forEach((task) => {
+      if (!task || typeof task.name !== "string" || !task.name.trim()) throw new Error("작업 이름이 없습니다.");
+      const path = taskPath(task.path);
+      if (paths.has(path)) throw new Error(`중복 작업 경로: ${task.path}`);
+      paths.add(path);
+      if (!states.some(([state]) => state === task.state)) throw new Error(`잘못된 작업 상태: ${task.name} (${task.state})`);
+    });
     return;
   }
-  if (!Array.isArray(value.tasks)) throw new Error("작업 보드에 tasks 배열이 필요합니다.");
-  const names = new Set();
-  value.verbs.forEach((verb) => {
-    if (!verb || typeof verb.name !== "string" || !verb.name.trim() || names.has(verb.name)) throw new Error("사용자 행동의 이름이 없거나 중복됩니다.");
-    names.add(verb.name);
-  });
-  const paths = new Set();
-  value.tasks.forEach((task) => {
-    if (!task || typeof task.name !== "string" || !task.name.trim()) throw new Error("작업 이름이 없습니다.");
-    const path = taskPath(task.path);
-    if (paths.has(path)) throw new Error(`중복 작업 경로: ${task.path}`);
-    paths.add(path);
-    if (!states.some(([state]) => state === task.state)) throw new Error(`잘못된 작업 상태: ${task.name} (${task.state})`);
-    if (task.verb !== null && !names.has(task.verb)) throw new Error(`등록되지 않은 사용자 행동: ${task.name} (${task.verb})`);
-  });
+  if (!isObject || !Array.isArray(value.verbs)) throw new Error("board.json에 verbs 배열이 필요합니다.");
+  if (!Array.isArray(value.rows)) throw new Error("알 수 없는 보드 형식이거나 rows 배열이 없습니다.");
+  value.verbs.forEach((verb) => { if (!verb || !Array.isArray(verb.cells)) throw new Error("기존 보드의 cells 배열을 읽을 수 없습니다."); });
 }
 async function openTask(task) {
   beginDialog();
   const request = documentRequest;
-  const body = el("div");
+  const body = el("div", "doc");
   body.append(el("p", "", "작업 문서를 읽는 중입니다."));
   info.append(el("h3", "", task.name), body);
   showDialog(task.name);
@@ -360,46 +363,74 @@ async function openTask(task) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const text = await response.text();
     if (request !== documentRequest || !info.open) return;
-    body.replaceChildren(...renderMarkdown(text, url));
+    const nodes = renderMarkdown(text, url);
+    // 문서의 첫 제목이 카드 이름과 같으면 대화상자 제목만 남긴다
+    const first = nodes[0];
+    if (first && first.tagName === "H3" && first.textContent.trim() === task.name.trim()) nodes.shift();
+    body.replaceChildren(...nodes);
   } catch (error) {
     if (request !== documentRequest || !info.open) return;
     body.replaceChildren(el("p", "error", `작업 문서를 읽지 못했습니다. ${task.path} (${error.message})`));
   }
 }
+
+// 상태 칸반: 열 네 개가 항상 DOM에 있고, 좁은 화면(폭 720px 미만)에서는 CSS가 고른 열만 보인다.
+// 고른 탭은 화면 안의 상태이며 저장하지 않는다.
 function renderTasks() {
-  map.className = "task-scroll";
-  const note = el("p", "task-note", "완료는 당시 작업의 결과이며 현재 제품 기능을 보장하지 않습니다. 좁은 화면에서는 표를 좌우로 이동할 수 있습니다.");
-  map.before(note);
-  const table = el("table", "task-table");
-  table.style.minWidth = `${Math.max(600, (board.verbs.length + 1) * 200 + 110)}px`;
-  const caption = el("caption", "", "사용자 행동과 상태별 작업");
-  table.append(caption);
-  const columns = [...board.verbs, { name: "공통", common: true }];
-  const thead = el("thead"); const header = el("tr");
-  const stateHead = el("th", "", "상태"); stateHead.scope = "col"; header.append(stateHead);
-  columns.forEach((verb) => {
-    const th = el("th"); th.scope = "col";
-    const label = el("span", "", verb.name);
-    if (!verb.common && hasInfo(verb)) interactive(label, () => openInfo(verb, "사용자 행동"));
-    th.append(label); header.append(th);
-  });
-  thead.append(header); table.append(thead);
-  const tbody = el("tbody");
-  states.forEach(([state, name]) => {
-    const tr = el("tr"); const th = el("th", "", name); th.scope = "row"; tr.append(th);
-    columns.forEach((verb) => {
-      const td = el("td");
-      board.tasks.filter((task) => task.state === state && task.verb === (verb.common ? null : verb.name)).forEach((task) => {
-        const card = el("button", "task-card", task.name);
-        card.type = "button";
-        card.setAttribute("aria-label", `${task.name} · ${name} · ${verb.name}`);
-        card.addEventListener("click", () => openTask(task)); td.append(card);
-      });
-      tr.append(td);
+  document.getElementById("note").hidden = false;
+  map.className = "kanban";
+  const tablist = document.getElementById("tabs");
+  const narrow = matchMedia("(max-width: 719.98px)");
+  const parts = states.map(([state, name]) => {
+    const count = board.tasks.filter((task) => task.state === state).length;
+    const label = (node) => { node.append(`${name} `, el("span", "n", String(count))); return node; };
+    const tab = label(el("button", "tab"));
+    tab.type = "button"; tab.id = `tab-${state}`;
+    tab.setAttribute("role", "tab"); tab.setAttribute("aria-controls", `panel-${state}`);
+    const panel = el("section", "state-col");
+    panel.id = `panel-${state}`;
+    const head = label(el("h2", "state-head")); head.id = `head-${state}`;
+    const cards = el("ul", "cards");
+    board.tasks.filter((task) => task.state === state).forEach((task) => {
+      const card = el("button", "task-card", task.name);
+      card.type = "button";
+      card.addEventListener("click", () => openTask(task));
+      const li = el("li"); li.append(card); cards.append(li);
     });
-    tbody.append(tr);
+    panel.append(head, cards);
+    tablist.append(tab); map.append(panel);
+    return { state, tab, panel };
   });
-  table.append(tbody); map.append(table);
+  function select(state) {
+    parts.forEach((p) => {
+      const on = p.state === state;
+      p.tab.setAttribute("aria-selected", String(on));
+      p.tab.tabIndex = on ? 0 : -1;
+      p.panel.classList.toggle("is-selected", on);
+    });
+  }
+  // 탭 역할은 탭이 보일 때만 준다. 넓은 화면의 열은 머리 제목이 이름이다.
+  function layout() {
+    parts.forEach((p) => {
+      if (narrow.matches) { p.panel.setAttribute("role", "tabpanel"); p.panel.setAttribute("aria-labelledby", p.tab.id); }
+      else { p.panel.removeAttribute("role"); p.panel.setAttribute("aria-labelledby", `head-${p.state}`); }
+    });
+  }
+  tablist.addEventListener("click", (event) => {
+    const tab = event.target.closest("[role=tab]");
+    if (tab) select(tab.id.slice(4));
+  });
+  tablist.addEventListener("keydown", (event) => {
+    const at = parts.findIndex((p) => p.tab === event.target);
+    const to = { ArrowRight: (at + 1) % parts.length, ArrowLeft: (at + parts.length - 1) % parts.length, Home: 0, End: parts.length - 1 }[event.key];
+    if (at < 0 || to === undefined) return;
+    event.preventDefault();
+    select(parts[to].state);
+    parts[to].tab.focus();
+  });
+  narrow.addEventListener("change", layout);
+  select("doing");
+  layout();
 }
 try {
   if (!projectId || projectId === "." || projectId === ".." || /[\\/]/.test(projectId)) throw new Error("주소 끝에 ?p=프로젝트이름을 붙여 주세요.");

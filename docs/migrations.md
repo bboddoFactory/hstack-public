@@ -11,6 +11,22 @@ hstack 버전이 오를 때 **프로젝트 기록에 영향을 주는 변경**�
 
 ---
 
+## 0.17.0 (2026-11-20)
+
+설명 자료를 스킬 CLI(`explain`) 한 입구로 만들어 `자료/<이름>/` 아래 판으로 놓고, 허브가 그것을 모아 보인다. 작업 보드는 상태 칸반이 되고 사용자 행동(`verbs`, `verb`)이 빠진다. 위임은 CLI 헤드리스 호출로만 하고 모델은 계열로 부른다.
+
+### 작업 보드의 사용자 행동
+
+- 알아보는 법: 프로젝트의 `board.json`이 `"format": "task-board"`이고 `verbs` 키나 작업마다 `verb` 키가 있다.
+- 할 일: 사용자에게 변경안을 보이고 확인받은 뒤 `verbs` 키와 각 작업의 `verb` 키를 지운다. 작업의 이름, 경로, 상태는 그대로 둔다. 화면은 이 키를 읽지 않으므로 지우기 전에도 보드는 열린다.
+- 그대로 둘 것: `format`이 없는 옛 에픽 보드(`rows/verbs/cells`)의 동사와 칸, 로그와 작업 파일 속 행동 이름.
+
+### 브라우저 설명 자료와 허브
+
+- 알아보는 법: 이 PC에서 `skills/story-map/scripts/serve.sh`를 python 서버로 띄워 쓰고 있거나, 허브(`skills/browser-explain/scripts/hub.mjs`)가 떠 있지 않다.
+- 할 일: macOS면 `node ~/workspace/hstack/skills/browser-explain/scripts/hub.mjs install`로 허브를 늘 켜 둔다(다른 OS는 README대로 `node .../hub.mjs`). Tailscale로 다른 기기에서 보던 PC는 README대로 허브 포트를 넘기고 그 Host 이름을 허브 설정에 넣는다.
+- 그대로 둘 것: 이미 만든 설명 HTML(`설명.html`, `설계.html` 등)은 옮기지 않는다. 허브 목록에는 없지만 지금 주소로 열린다.
+
 ## 0.16.0 (2026-11-16)
 
 기록에 영향 없음.

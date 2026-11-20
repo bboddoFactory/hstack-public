@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/skills/browser-explain/assets/explain.css?v=20261120">
+<link rel="stylesheet" href="/data/story-map/hstack-diagram/viewer/diagram-viewer.css?v=20261117">
+<title>{{제목}}</title>
+</head>
+<body>
+<main class="board">
+
+<!-- 머리: h1은 사용자가 고를 질문이다. 목록에 보이는 이름은 위의 title이고 짧게(30자 이하) 둔다. 요약에는 메인의 권고를 쓴다(세 항목 이하). 화면 모드 단추 셋은 지우지 않는다 -->
+<header class="page-head">
+<div class="modebar" role="radiogroup" aria-label="화면 모드">
+<input type="radio" name="mode" id="mode-system" aria-label="시스템 설정 따르기" checked><label for="mode-system" title="시스템"></label>
+<input type="radio" name="mode" id="mode-light" aria-label="라이트"><label for="mode-light" title="라이트"></label>
+<input type="radio" name="mode" id="mode-dark" aria-label="다크"><label for="mode-dark" title="다크"></label>
+</div>
+<h1>{{제목}}</h1>
+<ul class="summary">
+<li><strong>권고: 후보 이름.</strong> 이유 한 마디.</li>
+</ul>
+</header>
+
+<!-- 후보: article.choice가 2개에서 4개. 후보마다 h3(이름), p.theory(이론 이름: 한 줄 뜻), 그 아래에 내용(글, 표, 그림). 후보끼리 확실히 다르게 둔다 -->
+<section class="choices">
+<article class="choice">
+<h3>후보 가</h3>
+<p class="theory">이론 이름: 한 줄 뜻</p>
+<p>후보의 내용. 실제 데이터로 쓴다.</p>
+</article>
+<article class="choice">
+<h3>후보 나</h3>
+<p class="theory">이론 이름: 한 줄 뜻</p>
+<p>후보의 내용. 실제 데이터로 쓴다.</p>
+</article>
+</section>
+
+<!-- 확인하지 못한 것: 맨 아래 한 곳. 고르는 데 영향을 주는 것만 적는다 -->
+<section class="unknowns" id="unknown">
+<h2>확인하지 못한 것</h2>
+<ul class="unknown-list">
+<li>결론을 바꿀 수 있는 것만 적는다.</li>
+</ul>
+</section>
+
+</main>
+<script type="module" src="/data/story-map/hstack-diagram/viewer/diagram-viewer.js?v=20261117"></script>
+</body>
+</html>
