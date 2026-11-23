@@ -86,8 +86,6 @@ python3 scripts/sync-codex-basics.py --check
 | `board.json` | `format: task-board`, 작업 카드·상태·작업 파일 경로 |
 | `log.md` | 프로젝트 성장의 요약. 작업 결과·확인 범위·제한과 작업 파일·작업 로그 링크를 목록으로 남긴다. 프로젝트 전체의 중요한 결정도 요약한다 |
 
-설명 페이지는 [브라우저 설명 스킬](skills/browser-explain/SKILL.md)을 따른다. 메인의 저장·HTTP 제공·주소 전달은 [브라우저 설명 자료 절차](how-we-work.md#브라우저로-이해설계-자료를-보여-주는-방법)를 따른다.
-
 현황판 띄우기:
 
 ```bash
@@ -102,7 +100,7 @@ python3 scripts/sync-codex-basics.py --check
 |---|---|---|
 | 히포 모드 | `/hstack:hippo-mode` | 요청을 작업으로 정리하고 필요한 단계로 이어 갈 때. 현재 기록과 작업 보드를 관리한다 |
 | 시제품 스킬 | `/hstack:prototype` | 방향을 모를 때. 버리는 시제품을 만들어 써 보고 정한다 |
-| 현재 구조 이해 스킬 | `/hstack:understand` | 질문에 필요한 동작·책임·데이터 흐름과 선택 배경을 조사하고 브라우저로 함께 이해한다 |
+| 현재 구조 이해 스킬 | `/hstack:understand` | 질문에 필요한 동작·책임·데이터 흐름과 선택 배경을 조사하고 대화로 함께 이해한다 |
 | 변경 설계 스킬 | `/hstack:design` | 메인과 두 설계자의 후보를 별도 적대 검토하고, 구조와 중요한 선택을 사용자와 정한다 |
 | 구현 준비 스킬 | `/hstack:prepare` | 목적과 완료 기준이 정해진 뒤. 필요한 Understand↔Design을 연결하고 확정 결정·남은 질문을 얇은 레이어 표로 정리한다 |
 | 레이어 스킬 | `/hstack:layer` | 레이어마다. 명세·이번 구성·검증 계획 함께 확인 → 메인의 행동 테스트·확인 준비 → 구현 위임 → 메인이 동작·구성을 대조 → 올리고 사용자 확인 |
@@ -112,7 +110,7 @@ python3 scripts/sync-codex-basics.py --check
 | 규칙 적용 스킬 | `/hstack:migrate` | 바뀐 규칙을 지정한 프로젝트 범위의 기록에 적용할 때. 지정이 없으면 현재 대화의 프로젝트를 확인한다. 출시 버전의 적용 항목과 필요한 변경안을 확인받아 반영하고 `hstack-version`을 갱신한다 |
 | pstack 길잡이 | `/hstack:pstack-guide` | pstack 스킬 중 무엇을 언제 쓰는지 모를 때 |
 | 화면 디자인 설명서 | `/hstack:ui-design` | 화면의 색·글자·배치·컴포넌트를 정하거나 바꿀 때. 무엇을 비교판으로 묻고 무엇을 원칙으로 정하나, 기본 점검표로 모르는 것을 먼저 꺼낸다. 프로젝트별 값은 `data/story-map/<프로젝트>/DESIGN.md` |
-| 브라우저 설명 스킬 | `/hstack:browser-explain` | 질문에 맞는 그림으로 설명 페이지를 만들어 함께 이해하고 판단할 때 |
+| 브라우저 설명 스킬 | `/hstack:browser-explain` | 사용자가 그림 페이지를 요청할 때, 대화의 설명에 더할 그림을 브라우저 페이지로 그린다 |
 | Codex 자동화 스킬 | `/hstack:codex-automation` | Codex 예약 실행을 만들거나 고치고, 중지·삭제·점검할 때 |
 | 허더 스킬 | `/hstack:herdr` 또는 자연어 요청 | 음성 입력의 표기 차이를 문맥으로 이해하고, 화면 위치로 HERDR 패널을 찾아 확인하거나 요청한 조작을 할 때 |
 

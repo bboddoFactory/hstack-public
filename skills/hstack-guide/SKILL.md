@@ -20,13 +20,13 @@ hstack(`~/workspace/hstack`)을 고치거나 거기에 무언가를 적을 때 �
 | `skills/hippo-mode/` | 공통 작업 입구. 요청의 목적·범위·현재 기록을 정리하고 필요한 이해·설계·구현·검토로 연결한다. 작업을 작업 보드에서 찾는다 |
 | `skills/story-map/` | 작업 보드와 공용 자료. `references/`에 작업·보드·제품·시안 틀, `board/`에 두 형식을 읽는 화면, `scripts/`에 실행 도구. 별도 스킬 입구는 없으며 기존 주소와 자료 링크를 보존한다 |
 | `skills/prototype/` | 시제품 스킬. 방향을 모를 때 버리는 시제품을 만져 보고 정한다. 본문, `references/`(시제품 지시서) |
-| `skills/understand/` | 현재 구조 이해 스킬. 질문에 필요한 동작·책임·선택 배경을 조사하고 브라우저로 함께 이해한다. `references/`에 관찰 질문·사실 탐색·기술 실험 요청서를 둔다 |
+| `skills/understand/` | 현재 구조 이해 스킬. 질문에 필요한 동작·책임·선택 배경을 조사하고 대화로 함께 이해한다. `references/`에 관찰 질문·사실 탐색·기술 실험 요청서를 둔다 |
 | `skills/design/` | 변경 설계 스킬. 메인과 두 설계자의 후보·두 별도 적대 검토·사용자 선택과 기록을 연결한다. `references/`에 독립 주제에도 쓰는 설계 요청서를 두며 모델·원칙·검토 기준은 공통 문서를 참조한다 |
 | `skills/prepare/` | 구현 준비 스킬. 필요한 Understand↔Design과 기존 근거 재사용을 연결하고 확정 결정·남은 질문·최신 완료 기준을 얇은 레이어 표로 정리한다. `references/`에 표 틀을 두고 분할 기준은 how-we-work를 참조한다 |
 | `skills/layer/` | 레이어 스킬. 명세·이번 구성·검증 계획을 함께 확인하고 메인의 행동 테스트·구현 위임·동작과 구성의 대조를 거쳐 올린다. `references/`의 구현 요청서에 책임·상태·실패 흐름·검증 증거와 범위를 전달한다 |
 | `skills/review/` | 리뷰 스킬. 같은 요청서의 두 독립 통합 검토·시험 환경 재현·메인의 근거 대조와 사용자 선택을 거쳐 리뷰 레이어로 고치고 닫는다. `references/`에 통합 요청서와 질문을 좁힌 추가 검토 틀을 둔다 |
 | `skills/ui-design/` | 화면 디자인 설명서. 메인이 디자이너 역할로 화면의 값을 정할 때 무엇을 묻고 무엇을 원칙으로 정하나, 모르는 것을 먼저 꺼내는 법. `references/`에 기본 점검표·이론 모음·비교판·anti-pattern 모음·외부 스킬 참고·DESIGN.md 틀 |
-| `skills/browser-explain/` | 설명 페이지와 비교판을 스킬 CLI(`scripts/explain.mjs`)로 만들고 허브(`scripts/hub.mjs`)가 모아 보인다. `references/`에 글 원칙·페이지 뼈대·요청서 틀·그림 선택 기준, `assets/`에 공통 CSS와 빈 틀. 제품 UI 구현은 ui-design이 맡는다 |
+| `skills/browser-explain/` | 사용자가 요청한 설명 페이지와 비교판을 스킬 CLI(`scripts/explain.mjs`)로 만들고 허브(`scripts/hub.mjs`)가 모아 보인다. `references/`에 글 원칙·페이지 뼈대·그림 선택 기준, `assets/`에 공통 CSS와 빈 틀. 제품 UI 구현은 ui-design이 맡는다 |
 | `skills/codex-automation/` | Codex 자동화 스킬. 자동화를 toml 파일로 만들고 고치고 지우는 법, cron과 heartbeat, 예약 흔들림, 조용히 무시되는 실수, 확인하는 법. |
 | `skills/brief/` | 브리핑 스킬. 돌아왔을 때 프로젝트 요약·현황판·현재 작업 파일과 작업 로그를 읽고 지금 어디인지 알려 준다 |
 | `skills/herdr/` | 허더 스킬. 음성 입력의 표기 차이를 문맥으로 이해하고 위치로 패널을 찾는다. 실제 CLI 사용법은 설치된 공식 지침을 따른다 |

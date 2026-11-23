@@ -1,6 +1,6 @@
 # 설명 페이지 뼈대: 고정 자리와 부품 이름
 
-페이지를 만드는 쪽은 이 문서와 `assets/page.html`(부품을 다 보인 예시)만 보고 쓴다. `new page`가 만든 `원본.html`의 내용만 바꾼다. 비교판은 `new board`가 만들고 아래 「비교판 뼈대」를 따른다. 페이지 틀의 모양은 공통 CSS 한 장(`assets/explain.css`)이 정한다.
+`new page`가 만든 `원본.html`의 내용만 바꾼다. 비교판은 `new board`가 만들고 아래 「비교판 뼈대」를 따른다. 페이지 틀의 모양은 공통 CSS 한 장(`assets/explain.css`)이 정한다.
 
 ## 불러오는 것
 
@@ -13,13 +13,11 @@
 ```html
 <main class="page">
   <header class="page-head">…</header>
-  <section class="claim">…</section>   <!-- 절의 수만큼 -->
-  <details class="fold">…</details>    <!-- 있을 때만, unknowns 앞 -->
-  <section class="unknowns">…</section>
+  <section class="claim">…</section>   <!-- 그림 절의 수만큼 -->
 </main>
 ```
 
-`main.page` 바로 아래에는 이 넷만 둔다.
+`main.page` 바로 아래에는 이 둘만 둔다.
 
 ## 비교판 뼈대
 
@@ -47,25 +45,21 @@
 
 | 자리 | 요소와 class | 안에 들어가는 것 |
 |---|---|---|
-| 1 머리 | `header.page-head` | `p.page-type`(분류 한 줄, 없으면 뺀다), `h1`(제목), `ul.summary`(요약). 첫 자식이어야 한다 |
-| 2 본문 절 | `section.claim` (`id`를 붙인다) | `h2`(주장 한 문장)와 아래 부품. 절의 수와 구성은 페이지마다 다르다 |
-| 3 접어 둔 상세 | `details.fold` | 있을 때만. `unknowns` 앞에 둔다 |
-| 4 확인하지 못한 것 | `section.unknowns` | `h2`와 `ul.unknown-list > li`. 맨 아래 한 곳이고 화면 폭 전체의 회색 띠로 보인다 |
-
-요약(`ul.summary`)은 항목 셋 이하다. `<li><strong>굵은 앞 구절.</strong> 나머지</li>` 모양이다.
+| 1 머리 | `header.page-head` | `h1`(제목). 첫 자식이어야 한다 |
+| 2 그림 절 | `section.claim` (`id`를 붙인다) | `h2`(그 그림의 주장 한 문장)와 그림 묶음, 필요한 부품. 절의 수와 구성은 페이지마다 다르다 |
 
 ## 부품
 
 | 부품 | 요소와 class | 언제 쓰나 |
 |---|---|---|
-| 요약 | `ul.summary` | 머리 안, 제목 바로 아래 |
-| 선택지 제목과 설명 | `h3`, `p.intro` | 정할 것이 있는 절의 비교 표 앞. 첫 단락의 첫 낱말 몇 개는 `span.newthought`로 감싼다 |
+| 요약 | `ul.summary` | 비교판 머리 안, 제목 바로 아래. 항목 셋 이하, `<li><strong>굵은 앞 구절.</strong> 나머지</li>` 모양 |
+| 선택지 제목과 설명 | `h3`, `p.intro` | 비교 표 앞. 첫 단락의 첫 낱말 몇 개는 `span.newthought`로 감싼다 |
 | 비교 표 | `table.compare` | 같은 기준으로 여러 대상을 견줄 때. `thead > tr > th`, 이름 칸은 `td.name > b`(필요하면 `span`으로 짧은 설명), 나머지 칸은 `td[data-label="열 이름"]`. 폰에서 "열 이름: 값"으로 쌓인다 |
 | 권고 | `p.recommend` | 비교 표 다음. `<strong>권고: …</strong>`로 시작한다 |
 | 미정과 정함 | `strong.status.status-open`, `strong.status.status-set` | 글 앞에 붙는 표시. 글자는 "미정", "정함" |
 | 그림 묶음 | `figure.fig` | 그림 하나와 그 설명. 아래 별도 절 |
-| 접어 둔 상세 | `details.fold > summary`와 `div.fold-body` | `div.fold-body` 안에 `h3`, `ul.link-list > li`(링크는 `a`, 주소 글은 `span.url`) |
-| 확인하지 못한 것 | `ul.unknown-list` | `section.unknowns` 안 |
+| 접어 둔 상세 | `details.fold > summary`와 `div.fold-body` | 비교판에서만. `div.fold-body` 안에 `h3`, `ul.link-list > li`(링크는 `a`, 주소 글은 `span.url`) |
+| 확인하지 못한 것 | `ul.unknown-list` | 비교판의 `section.unknowns` 안 |
 | 코드 블록 | `pre.code > code` | 명령이나 코드 여러 줄. 긴 줄은 블록 안에서 옆으로 밀고 페이지는 넘치지 않는다. 글자는 작은 글자(14px)다 |
 | 글 속 코드 | `code` | 문장 속 명령, 파일 이름, 값 |
 | 이미지 | `figure.fig > img[alt]`와 `figcaption` | 화면 캡처와 사진. `alt`에 무엇이 보이는지 쓰고, `src`는 자료 폴더 안의 파일이다(build가 판마다 고정한다) |

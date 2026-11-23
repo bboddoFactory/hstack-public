@@ -12,42 +12,12 @@
 <body>
 <main class="page">
 
-<!-- 자리 1: 머리. 분류 한 줄은 없으면 뺀다. 요약은 세 항목 이하 -->
+<!-- 자리 1: 머리. 무엇의 그림인지 -->
 <header class="page-head">
-<p class="page-type">알림 설계</p>
 <h1>주문 알림은 한 번만 보낸다</h1>
-<ul class="summary">
-<li><strong>알림은 주문 저장 뒤에 보낸다.</strong> 저장이 실패하면 알림도 가지 않는다.</li>
-<li><strong>같은 주문은 알림이 한 번이다.</strong> 주문 번호로 중복을 거른다.</li>
-<li><strong>재시도 간격은 미정이다.</strong> 실제 실패율을 본 뒤 정한다.</li>
-</ul>
 </header>
 
-<!-- 자리 2: 본문 절. 절 하나가 주장 하나. 정할 것이 있으면 첫 절에 둔다 -->
-<section class="claim" id="decide">
-<h2>정할 것은 하나다: 중복을 어디서 거를까</h2>
-<h3>중복 알림을 어디서 막을까</h3>
-<p class="intro"><span class="newthought">중복 알림은</span> 같은 주문에 알림이 두 번 이상 가는 일이다. 재시도 때문에 생긴다.</p>
-<table class="compare">
-<thead><tr><th>안</th><th>얻는 것</th><th>잃는 것</th></tr></thead>
-<tbody>
-<tr>
-<td class="name"><b>보내기 전에 거른다</b><span>알림을 보내기 전에 주문 번호를 조회한다</span></td>
-<td data-label="얻는 것">받는 사람에게 중복이 가지 않는다.</td>
-<td data-label="잃는 것">조회가 한 번 더 든다.</td>
-</tr>
-<tr>
-<td class="name"><b>받는 쪽에서 거른다</b></td>
-<td data-label="얻는 것">보내는 쪽이 단순하다.</td>
-<td data-label="잃는 것">받는 쪽마다 같은 검사를 만든다.</td>
-</tr>
-</tbody>
-</table>
-<p class="recommend"><strong>권고: 보내기 전에 거른다.</strong> 받는 쪽이 여럿이라 한 곳에서 막는 편이 싸다.</p>
-<p><strong class="status status-set">정함</strong> 알림은 주문 저장 뒤에 보낸다.</p>
-<p><strong class="status status-open">미정</strong> 재시도 간격은 아직 고르지 않았다.</p>
-</section>
-
+<!-- 자리 2: 그림 절. 절 하나가 주장 하나 -->
 <section class="claim" id="flow">
 <h2>주문이 저장되면 알림 서버가 한 번만 보낸다</h2>
 <figure class="fig">
@@ -93,6 +63,25 @@
 </ol>
 <p class="fig-note">알림 서버가 주문 번호를 기억하는 기간은 하루다.</p>
 </figure>
+<!-- 비교 표, 권고, 정함과 미정 표시는 그림 옆에 꼭 필요할 때 쓰는 부품이다 -->
+<table class="compare">
+<thead><tr><th>안</th><th>얻는 것</th><th>잃는 것</th></tr></thead>
+<tbody>
+<tr>
+<td class="name"><b>보내기 전에 거른다</b><span>알림을 보내기 전에 주문 번호를 조회한다</span></td>
+<td data-label="얻는 것">받는 사람에게 중복이 가지 않는다.</td>
+<td data-label="잃는 것">조회가 한 번 더 든다.</td>
+</tr>
+<tr>
+<td class="name"><b>받는 쪽에서 거른다</b></td>
+<td data-label="얻는 것">보내는 쪽이 단순하다.</td>
+<td data-label="잃는 것">받는 쪽마다 같은 검사를 만든다.</td>
+</tr>
+</tbody>
+</table>
+<p class="recommend"><strong>권고: 보내기 전에 거른다.</strong> 받는 쪽이 여럿이라 한 곳에서 막는 편이 싸다.</p>
+<p><strong class="status status-set">정함</strong> 알림은 주문 저장 뒤에 보낸다.</p>
+<p><strong class="status status-open">미정</strong> 재시도 간격은 아직 고르지 않았다.</p>
 </section>
 
 <section class="claim" id="sequence">
@@ -118,7 +107,7 @@
 </section>
 
 <section class="claim" id="size">
-<h2>알림이 늘면 조회도 같은 비율로 는다</h2>
+<h2>알림은 내년에 네 배로 는다</h2>
 <figure class="fig">
 <!-- 값의 크기를 보이는 그림은 뷰어에 넣지 않고 div.chart 안에 둔다. 막대는 모두 회색이고 봐야 할 하나만 .hl이다. 길이는 --v로 넘긴다 -->
 <div class="chart">
@@ -150,7 +139,7 @@
 <figure class="fig">
 <!-- 칸 흐름과 트리처럼 HTML로 그린 그림도 div.chart 안에 둔다 -->
 <div class="chart">
-<div class="lanes" role="group" aria-label="알림 두 경로의 비교">
+<div class="lanes" role="group" aria-label="바로 보낼 때 생기는 일">
 <div class="lane">
 <div class="box"><div class="col">경로</div><b>바로 보낸다</b><small>저장하자마자 보낸다.</small></div>
 <svg class="arr" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 10H30M23 3l8 7-8 7"/></svg>
@@ -167,7 +156,7 @@
 <figure class="fig">
 <div class="chart">
 <div class="tree">
-<div class="root">알림<small>세 갈래</small></div>
+<div class="root">알림<small>두 갈래</small></div>
 <div class="branches">
 <div class="branch">
 <div class="head"><b>주문</b><small>주문이 생기거나 바뀔 때</small></div>
@@ -188,7 +177,7 @@
 
 <section class="claim" id="parts">
 <h2>명령은 코드로, 화면은 이미지로 보인다</h2>
-<p>알림을 다시 보내려면 <code>explain build</code>를 부른다. 긴 줄은 블록 안에서 옆으로 밀어 본다.</p>
+<p>여러 줄 명령은 코드 블록에, 문장 속 명령은 <code>explain build</code>처럼 쓴다. 긴 줄은 블록 안에서 옆으로 밀어 본다.</p>
 <pre class="code"><code>curl -X POST https://example.com/notify -H "content-type: application/json" -d '{"order": 1042, "retry": 0}'</code></pre>
 <figure class="fig">
 <!-- 화면 캡처와 사진은 figure.fig 안의 img다. alt를 쓰고, src는 자료 폴더의 파일(예: 화면.png)이다. 이 예시는 파일 없이 build되도록 data 주소를 썼다 -->
@@ -197,25 +186,6 @@
 <p class="fig-sub">화면 캡처: 사용자가 받는 알림의 모양을 보이려고 골랐다.</p>
 </figcaption>
 </figure>
-</section>
-
-<!-- 자리 3: 접어 둔 상세. 있을 때만, 확인하지 못한 것 앞에 -->
-<details class="fold">
-<summary>근거 링크 1개</summary>
-<div class="fold-body">
-<h3>알림 방식</h3>
-<ul class="link-list">
-<li><a href="https://example.com/notify">알림 방식 설명</a><span class="url">https://example.com/notify</span></li>
-</ul>
-</div>
-</details>
-
-<!-- 자리 4: 확인하지 못한 것. 맨 아래 한 곳 -->
-<section class="unknowns" id="unknown">
-<h2>확인하지 못한 것</h2>
-<ul class="unknown-list">
-<li>실제 실패율은 한 주 돌려 봐야 안다. 높으면 재시도 간격 선택이 달라진다.</li>
-</ul>
 </section>
 
 </main>

@@ -23,7 +23,6 @@
 |---|---|
 | **기본** | Terra **high**, `codex exec` 쓰기 가능 |
 | **막히면** | → Claude Sonnet **high**, `claude -p --model sonnet --effort high` |
-| **설명 페이지 제작** | Claude Sonnet **high**, `claude -p --model sonnet --effort high` |
 
 구현과 테스트가 로컬 앱과 통신해야 하는 레이어는 Terra의 `workspace-write` 샌드박스에서 막힌다(네트워크 허용으로도 안 된다). 그런 레이어는 처음부터 Sonnet에게 맡긴다. 구현자의 샌드박스는 풀지 않는다. 사용자가 그 레이어에 한해 명시적으로 허락할 때만 예외다.
 
